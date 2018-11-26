@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/main.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/plugin.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/custom.css') }}">
+<link rel="stylesheet" href="https://maxcdn.icons8.com/fonts/line-awesome/1.1/css/line-awesome-font-awesome.min.css">
+       {% endblock %}
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+        {% block javascripts %}
+        <script type="text/javascript" src="{{ asset('assets/js/checkout.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/main.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugin.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/custom.js') }}"></script>
+
+        {% endblock %}
+    </body>
+</html>
