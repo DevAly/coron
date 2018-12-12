@@ -1,24 +1,41 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/main.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/plugin.css') }}">
-<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/custom.css') }}">
-<link rel="stylesheet" href="https://maxcdn.icons8.com/fonts/line-awesome/1.1/css/line-awesome-font-awesome.min.css">
-       {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-        {% block javascripts %}
-        <script type="text/javascript" src="{{ asset('assets/js/checkout.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('assets/js/main.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('assets/js/plugin.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('assets/js/custom.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('assets/js/swiper.min.js') }}"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Welcome!{% endblock %}</title>
+    {% block stylesheets %}
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/please-wait/0.0.5/please-wait.min.css">
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/pleasewait.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/main.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/plugin.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/custom.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/scholar.css') }}">
+        <link rel="stylesheet"
+              href="https://maxcdn.icons8.com/fonts/line-awesome/1.1/css/line-awesome-font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Cairo">
+        <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    {% endblock %}
+</head>
+<body>
 
-        {% endblock %}
-    </body>
+{% block body %}{% endblock %}
+{% block javascripts %}
+    {#<script type="text/javascript" src="{{ asset('assets/js/checkout.js') }}"></script>#}
+    <script type="text/javascript" src="{{ asset('assets/js/pleasewait.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugin.js') }}?time=1544562152"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/main.js') }}?time=1544554802"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/custom.js') }}"></script>
+    {#<script type="text/javascript" src="{{ asset('assets/js/swiper.min.js') }}"></script>#}
+    <script type="text/javascript">
+        window.loading_screen = window.pleaseWait({
+            logo: "{{ asset('assets/img/logol.png') }}",
+            backgroundColor: '#f46d3b',
+            loadingHtml: "<div class=\"sk-spinner sk-spinner-double-bounce\"><div class=\"sk-double-bounce1\"></div><div class=\"sk-double-bounce2\"></div></div>"
+        });
+        $( window  ).load(function() {
+            loading_screen.finish();
+        });
+    </script>
+{% endblock %}
+</body>
 </html>

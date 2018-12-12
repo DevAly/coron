@@ -1,2270 +1,2341 @@
-function toogleView(i, v) {
-    var input = $(i);
-    if (input.prop("checked") === false) {
-        $(v).fadeOut();
-    } else {
-        $(v).fadeIn();
-    }
-}
-
-window.isFocused = true;
-function messageSent(c) {
-    $('.chat-form input[type=text]').val('');
-    $('.chats-container').append(c);
-    scrollToBottom($('.chats-container'));
-    reloadInit();
-}
-function go_welcomePage(step) {
-    if (step === 4) {
-        var users  = '';
-        $('.each-welcome-user input').each(function() {
-            if ($(this).prop('checked') !== false) {
-                users += (users === '') ? $(this).val() : ','+$(this).val();
-            }
-        });
-        pageLoader();
-        $.ajax({
-            url : buildLink('welcome/finish', [{key:'users', value: users}]),
-            success : function(r) {
-                pageLoaded();
-                window.location.href = buildLink('');
-            }
-        });
-    }
-    $(".getstarted-content .step").hide();
-    $(".getstarted-content .step-" + step).fadeIn();
-
-    if (step === 3) {
-        $("#getstarted-back").removeAttr('disabled');
-        $("#getstarted-back").removeClass('disabled');
-        $('.progress-bar').css('width', '50%');
-        //get all selected genres
-        var genres  = '';
-        $('.each-genre input').each(function() {
-            if ($(this).prop('checked') !== false) {
-                genres += (genres === '') ? $(this).val() : ','+$(this).val();
-            }
-        });
-        pageLoader();
-        $.ajax({
-            url : buildLink('welcome/load', [{key:'genres', value: genres}]),
-            success : function(r) {
-                pageLoaded();
-                $("#getstarted-users").html(r);
-            }
-        });
-    } else if(step === 2) {
-        $("#getstarted-back").attr('disabled', 'disabled');
-        $("#getstarted-back").prop('disabled', 'disabled');
-    }
-    return false;
-}
-function select_genre(id) {
-
-    if ($(".each-genre-"+id + ' input').prop('checked') !== false ) {
-        $(".each-genre-"+id + ' i').fadeOut();
-        $(".each-genre-"+id + ' input').removeAttr('checked');
-    } else {
-        $(".each-genre-"+id + ' i').fadeIn();
-        $(".each-genre-"+id + ' input').prop('checked', 'checked');
-    }
-
-    var $checkboxes = $('.each-genre input[type="checkbox"]');
-    var countCheckedCheckboxes = $checkboxes.filter(':checked').length;
-    if (countCheckedCheckboxes > 0) {
-        $("#getstarted-step-2-btn").removeClass('disabled');
-        $("#getstarted-step-2-btn").removeAttr('disabled');
-    } else {
-        $("#getstarted-step-2-btn").addClass('disabled');
-        $("#getstarted-step-2-btn").attr('disabled', 'disabled');
-    }
-    return false;
-}
-
-function getstarted_selectUser(id) {
-    if ($(".each-welcome-user-"+id + ' input').prop('checked') !== false ) {
-        $(".each-welcome-user-"+id + ' i').fadeOut();
-        $(".each-welcome-user-"+id + ' input').removeAttr('checked');
-    } else {
-        $(".each-welcome-user-"+id + ' i').fadeIn();
-        $(".each-welcome-user-"+id + ' input').prop('checked', 'checked');
-    }
-
-    var $checkboxes = $('.each-welcome-user input[type="checkbox"]');
-    var countCheckedCheckboxes = $checkboxes.filter(':checked').length;
-    var width = (countCheckedCheckboxes * 10) + 50;
-    $('.progress-bar').css('width', width+ '%');
-    if (countCheckedCheckboxes > 0) {
-        $("#getstarted-step-3-btn").removeClass('disabled');
-        $("#getstarted-step-3-btn").removeAttr('disabled');
-    } else {
-        $("#getstarted-step-3-btn").addClass('disabled');
-        $("#getstarted-step-3-btn").attr('disabled', 'disabled');
-    }
-    return false;
-}
-
-function reloadCharts(url) {
-    var genre = $("#filter-genre").val();
-    var time = $("#filter-time").val();
-    load_page(buildLink(url, [{key: 'genre', value: genre}, {key: 'time', value: time}]));
-}
-function showReportTrack(id){
-    $("#reportTrack #report-track").val(id);
-    $("#reportTrack").modal("show");
-    return false;
-}
-
-function showEditPlaylistModal(id) {
-    pageLoader();
-    $.ajax({
-        url : buildLink('load/playlist/form', [{key: 'id' , value: id}]),
-        success : function(r) {
-            $("#editPlaylistModal .modal-body").html(r);
-            pageLoaded();
-            $("#editPlaylistModal").modal("show")
-        }
-    });
-
-    return false;
-}
-function changeAuthModal(form) {
-
-    $('.login-form').hide();
-    $('.signup-form').hide();
-    $('.forgot-form').hide();
-    if (form == '.signup-form') {
-        $('.auth-login-title').removeClass('active');
-        $('.auth-signup-title').addClass('active');
-    } else {
-        $('.auth-signup-title').removeClass('active');
-        $('.auth-login-title').addClass('active');
-    }
-    $(form).show();
-    $("#authModal").modal("show");
-    return false;
-}
-
-window.playlistTrackId = null;
-function changePlaylistModal(form, id) {
-    if (id === undefined)  id = window.playlistTrackId;
-    window.playlistTrackId = id;
-    $('.playlists').hide();
-    $('.add-playlist').hide();
-    if (form == '.add-playlist') {
-        $("#add-playlist-id").val(id);
-        $('.playlist-title').removeClass('active');
-        $('.add-playlist-title').addClass('active');
-    } else {
-        //load the user playlists
-        $.ajax({
-            url : buildLink('playlist/load', [{key:'track',value:id}]),
-            success : function(c) {
-                $('.playlists').html(c);
-            }
-        });
-        $('.add-playlist-title').removeClass('active');
-        $('.playlist-title').addClass('active');
-    }
-    $(form).show();
-    $("#playlistModal").modal("show");
-    return false;
-}
-
-function finishPlaylistCreate() {
-    changePlaylistModal('.playlists');
-    $('.add-playlist-title input').val('');
-}
-function finishPlaylistAdd() {
-    changePlaylistModal('.playlists');
-}
-function finishLaterAdd(r) {
-    var json = jQuery.parseJSON(r);
-    $('.each-track-'+json.track+' .track-later span').html(json.title);
-    if (!json.action) {
-        if (window.location.href.match('listen-later')) {
-            $('.each-track-'+json.track).fadeOut();
-        }
-    }
-}
-
-function followFinished(r) {
-    var result = r;
-    var btn = $(".follow-"+result.id+'-btn');
-    $('.followers-count-'+result.id).html(result.count);
-    if (result.action) {
-        btn.removeClass('follow');
-        btn.html(result.text);
-    } else {
-        btn.addClass('follow');
-        btn.html(result.text);
-    }
-}
-function commentAdded(r) {
-    var result = jQuery.parseJSON(r);
-    var container = $('.comments-'+result.type+'-'+result.id);
-
-    var r = $("<div style='display: none;'></div>");
-    r.html(result.comment);
-    container.find('.comments-container-'+result.type+'-'+result.id).prepend(r);
-    r.fadeIn();
-    container.find('.comments-form-'+result.type+'-'+result.id).find('textarea').val('');
-
-    if ($('.comment-count-'+result.type+'-'+result.id).length > 0) {
-        $('.comment-count-'+result.type+'-'+result.id).find('span').html(result.count);
-        $('.comment-count-'+result.type+'-'+result.id).fadeIn();
-    }
-    setTimeout(function() {
-        reloadInit();
-    }, 300)
-    //done
-}
-
-function commentAddedAt(trackId) {
-    var c = $(".track-time-comment-container-"+trackId);
-
-    c.find('.reply-to').hide();
-    c.find('.reply-to input').val('');
-    c.find('.at-value').val('');
-    c.find('.input input').val('');
-    loadTrackTimeComments(trackId);
-    c.find('.clicker').hide();
-    c.find('form').slideUp();
-}
-
-function commentReported(id) {
-    $("#comment-"+id).fadeOut();
-}
-function itemLiked(r) {
-    var result = jQuery.parseJSON(r);
-    var id = ".like-button-"+result.type+'-'+result.typeId;
-    $(id).find('span').html(result.text);
-    if (result.action) {
-        $(id).addClass('liked');
-    } else {
-        $(id).removeClass('liked');
-    }
-    $(".like-count-"+result.type+'-'+result.typeId+ ' span').html(result.count);
-    $(".like-count-"+result.type+'-'+result.typeId).fadeIn();
-    if (result.count < 1) $(".like-count-"+result.type+'-'+result.typeId).hide();
-    if ($("."+result.type+'-likes-'+result.typeId).length > 0) {
-        $("."+result.type+'-likes-'+result.typeId).html(result.likes);
-    }
-}
-
-function itemReposted(r) {
-    var result = jQuery.parseJSON(r);
-    var type = result.playlist === '0' ? 'track' : 'playlist';
-    var typeId = result.playlist === '0' ? result.track : result.playlist;
-    var id = ".repost-button-"+type+'-'+typeId;
-    $(id).find('span').html(result.text);
-    if (result.action) {
-        $(id).addClass('reposted');
-    } else {
-        $(id).removeClass('reposted');
-    }
-    $(".repost-count-"+type+'-'+typeId+ ' span').html(result.count);
-    $(".repost-count-"+type+'-'+typeId).fadeIn();
-    if (result.count < 1) $(".repost-count-"+type+'-'+typeId).hide();
-}
-function commentDeleted(r) {
-    var result = jQuery.parseJSON(r);
-    $('#comment-'+result.id).fadeOut();
-    if ($('.comment-count-'+result.type+'-'+result.id).length > 0) {
-        $('.comment-count-'+result.type+'-'+result.id).find('span').html(result.count);
-        $('.comment-count-'+result.type+'-'+result.id).fadeIn();
-    }
-    //Job done
-}
-function toggleView(t, c) {
-    if ($(t).prop('checked') === true) {
-        $(c).fadeIn();
-    } else {
-        $(c).fadeOut();
-    }
-}
-
-function hideView(c) {
-    $(c).fadeOut();
-}
-
-
-
-function confirm(url, mess, ajax) {
-    iziToast.show({
-        theme: 'dark',
-        icon: 'icon-person',
-        title: '',
-        overlay : true,
-        zindex : 9999999,
-        message: (mess === undefined) ? strings.are_your_sure : mess,
-        position: 'center', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter
-        progressBarColor: 'rgb(0, 255, 184)',
-        buttons: [
-            ['<button>'+strings.ok+'</button>', function (instance, toast) {
-                if (ajax === undefined || !ajax) {
-                    window.location.href = url;
-                    instance.hide({
-                        transitionOut: 'fadeOutUp',
-                        onClosing: function(instance, toast, closedBy){
-                            console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
-                        }
-                    }, toast, 'buttonName');
-                } else {
-                    instance.hide({
-                        transitionOut: 'fadeOutUp'
-                    }, toast, 'buttonName');
-                    ajaxAction(url);
-                }
-            }, true], // true to focus
-            ['<button>'+strings.close+'</button>', function (instance, toast) {
-                instance.hide({
-                    transitionOut: 'fadeOutUp',
-                    onClosing: function(instance, toast, closedBy){
-                        console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
-                    }
-                }, toast, 'buttonName');
-            }]
-        ]
-    });
-
-    return false;
-}
-
-function showFormLoader(f) {
-    var l = Ladda.create( document.querySelector(f) );
-    l.start();
-}
-function hideFormLoader(f) {
-    var l = Ladda.create( document.querySelector(f) );
-    l.stop();
-}
-
-function notify(m, type) {
-    if (type === 'error') {
-        iziToast.error({
-            message: m,
-            position: 'topRight'
-        });
-    } else if(type === 'success') {
-        iziToast.success({
-            message: m,
-            position: 'topRight'
-        });
-    } else {
-        iziToast.info({
-            message: m,
-            position: 'topRight'
-        });
-    }
-}
-
-function validate_fileupload(fileName, type)
-{
-    var allowed_extensions = new Array("jpg","png","gif");
-    allowed_extensions = supportImagesType.split(',');
-    if (type == 'audio') allowed_extensions = supportAudioType.split(',');
-    if (type == 'video') allowed_extensions = supportVideoType.split(',');
-    var file_extension = fileName.split('.').pop().toLowerCase(); // split function will split the filename by dot(.), and pop function will pop the last element from the array which will give you the extension as well. If there will be no extension then it will return the filename.
-    //alert(file_extension)
-    for(var i = 0; i <= allowed_extensions.length; i++)
-    {
-        if(allowed_extensions[i]==file_extension)
-        {
-            return true; // valid file extension
-        }
-    }
-
-    return false;
-}
-
-window.trackfiles = [];
-function validate_file_size(input, type) {
-    var files = input.files;
-    if (type === 'audio') {
-        if ($(input).hasClass('main-audio')) {
-            //window.trackProcessed = 0;
-            //window.trackProcessing = false;
-        }
-    }
-    for(ii = 0;ii < files.length;ii++) {
-        var file = files[ii];
-
-        if (type == 'image') {
-            if (!validate_fileupload(file.name, 'image')) {
-                notify(strings.notImageError, 'error')
-                $(input).val('');//yes
-                return true;
-            }
-
-            if (file.size > allowPhotoSize) {
-                //this file is more than allow photo file
-                notify(strings.allowImageSizeError, 'error');
-                //empty the input
-                $(input).val('');//yes
-                return true;
-            }
-
-
-            if ($(input).data('placeholder') !== undefined) {
-                var fr = new FileReader();
-                fr.onload = function(){
-                    $($(input).data('placeholder')).css('background-image', 'url('+fr.result+')');
-                    $($(input).data('placeholder')).fadeIn();
-                }
-                fr.readAsDataURL(file);
-
-            }
-        } else if(type === 'video') {
-            if (!validate_fileupload(file.name, 'video')) {
-                notify(strings.notVideoError, 'error')
-                $(input).val('');//yes
-                return true;
-            }
-
-            if (file.size > allowVideoSize) {
-                //this file is more than allow photo file
-                notify(strings.allowVideoSizeError, 'error');
-                //empty the input
-                $(input).val('');//yes
-                return true;
-            }
-
-            if ($(input).hasClass('main-video')) {
-                $('.video-selector').hide();
-                $('#video-form-container').fadeIn();
-                var newFileName = file.name.replace(/C:\\fakepath\\/i, '').replace(/.mp4/i, '').replace(/.mov/i, '')
-                    .replace(/.wmv/i, '').replace(/.3gp/i, '').replace(/.avi/i, '').replace(/.flv/i, '')
-                    .replace(/.f4v/i, '').replace(/.webm/i, '');
-
-                $('.video-title').val(newFileName);
-            }
-
-        } else if(type === 'audio') {
-            var i = $('.selected-track').length;
-            //alert(i);
-            if (!validate_fileupload(file.name, 'audio')) {
-                notify(strings.notAudioError, 'error')
-                $(input).val('');//yes
-                return true;
-            }
-
-            if (file.size > allowAudioSize) {
-                //this file is more than allow photo file
-                notify(strings.allowAudioSizeError, 'error');
-                //empty the input
-                $(input).val('');//yes
-                return true;
-            }
-
-            newFileName = file.name.replace(/C:\\fakepath\\/i, '').replace(/.mp3/i, '').replace(/.m4a/i, '').replace(/.mp4/i, '');
-
-            if ($(input).hasClass('main-audio')) {
-                window.trackfiles[i] = {file: file};
-                $("#song--upload-form").data('not-ready', true);
-                if ($(input).hasClass('start-main-audio')) {
-                    $('.uploader-form').hide();
-                    $('.uploader-main-form').fadeIn();
-                }
-
-                var addPrice = "";
-
-                var data = $("<div class=' each-upload-track each-upload-track-"+i+"'></div>");
-                data.append('<div class="progress-wrapper">' +
-                    '                                                <div class="progress the-progress-'+i+'" style="height:2px">' +
-                    '                                                    <div class="progress-bar" role="progressbar" style="width: 0%;background:black" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>' +
-                    '                                                </div>' +
-                    '                                            </div>');
-
-                data.append("<input class='track-file track-file-"+i+"' data-id='"+i+"' required type='hidden' name='val[trackfiles][]'/>");
-                data.append("<input class='title-wave title-wave-"+i+"' data-id='"+i+"' type='hidden' name='val[titlewaves][]'/>");
-                data.append("<input type='hidden' data-id='"+i+"'  class='title-wave2 title-wave2-"+i+"' name='val[titlewaves2][]'/>");
-                data.append("<input type='hidden' data-id='"+i+"'  class='track-duration' name='val[durations][]'/>");
-                data.append("<input type='hidden' data-id='"+i+"'  class='track-size' name='val[sizes][]'/>");
-                data.append("<input type='hidden' data-id='"+i+"'  class='avatar-data avatar-data-"+i+"' name='val[avatardata][]'/>");
-                if ($(".upload-pricing").length > 0) {
-                    //$(".upload-pricing").fadeIn();
-                    $('#upload-store-info').hide();
-                    addPrice = " | <a style='' class='colored' onclick='return toggle_price_pane(this)' href=''>"+strings.add_price+"</a>";
-
-                    var pricingTemp = $($('.upload-pricing-temp').html());
-                    pricingTemp.find('.demo_wave').attr('name', 'demowave[]');
-                    pricingTemp.find('.demo_wave_colored').attr('name', 'demowavecolored[]');
-                    pricingTemp.find('input[type=number]').attr('name', 'val[prices][]');
-                }
-                data.append("<div class='middle clearfix' style='margin: 0 10px'>" +
-                    "<span class='handle'><i class='la  la-align-justify'></i></span>" +
-                    "<input class='form-control selected-track' type='text' name='val[titles][]' autocomplete='off' required value=\""+newFileName+"\"/>" +
-                    "<button class='btn ' onclick='return remove_selected_track(this)'><i class='fa  fa-close'></i></button>" +
-                    "</div>" +
-                    "<div style='padding:0 10px'><small class='ml-1'>"+file.name+" | <a href='' class='colored' onclick='return toggle_custom_url_field(this)'>"+strings.custom_url+"</a> "+addPrice+" </small></div>" +
-                    "");
-
-                var fakeUrl = buildLink('track/')
-                data.append("<div class='custom-url-container hide'><hr/>" +
-                    "<div class='clearfix the-custom-url' style='padding: 0 10px;'>" +
-                    "<input type='text' placeholder='"+strings.custom_url+"' name='val[customurl][]' class='form-control' />" +
-                    "<small>"+fakeUrl+"xxx-xxx-xxx <strong>("+strings.alphanum_only+")</strong></small>" +
-                    "</div>" +
-                    "</div>");
-                if ($(".upload-pricing").length > 0) {
-
-                    $(data).append(pricingTemp);
-                }
-                $("#selected-songs").append(data);
-
-                //lets submit to server
-                var f = new FormData();
-                f.append("number", i);
-                f.append("track_file", file);
-                var ajax = new XMLHttpRequest();
-                ajax.upload.uniquedata = i;
-                ajax.upload.addEventListener("progress", function(event)  {
-                    var position = event.target.uniquedata;
-                    var progress = $(".the-progress-" +position);
-                    var percent = ((event.loaded / event.total) * 100).toFixed(0);
-                    progress.find('.progress-bar').css('width', percent + '%');
-                    progress.show();
-
-                }, false);
-                ajax.addEventListener("load", function(event) {
-                    // Parse the response
-                    try {
-                        var response = JSON.parse(event.target.responseText);
-                        var container = $(".each-upload-track-"+response.number);
-                        container.find('.track-file').val(response.audio);
-                        container.find('.track-duration').val(response.duration);
-                        container.find('.track-size').val(response.size);
-                        var position = response.number;
-                        hideItsProgress(position);
-
-                    } catch(error) {
-                        var response = false;
-                    }
-
-                    return true;
-                }, false);
-                ajax.addEventListener("error", errorHandler, false);
-                ajax.addEventListener("abort", abortHandler, false);
-                ajax.open("POST", buildLink("upload/track"));
-                ajax.send(f);
-
-
-
-
-            }
-
-        }
-    }
-    if (type === 'audio' && $(input).hasClass('main-audio')) {
-        //$(input).val('');
-        generateWaveForm(files);
-    }
-}
-
-
-function errorHandler(event) {
-    console.log(event);
-}
-function abortHandler(event) {
-    console.log(event);
-}
-
-function toggle_custom_url_field(t) {
-    var parent = $(t).parent().parent().parent();
-    var container = parent.find('.custom-url-container');
-    if (container.css('display') == 'none') {
-        container.fadeIn();
-        container.find('input').focus();
-    } else {
-        container.hide();
-    }
-    return false;
-}
-function toggle_price_pane(t) {
-    var parent = $(t).parent().parent().parent();
-    var container = parent.find('.the-price-container');
-    if (container.css('display') == 'none') {
-        container.fadeIn();
-        container.find('input').focus();
-    } else {
-        container.hide();
-    }
-    return false;
-}
-
-function remove_selected_track(t) {
-    var parent = $(t).parent().parent();
-    parent.remove();
-    //count the remain selected tracks if less than 1 show the choose file step
-    var count = $('.selected-track').length;
-    if (count < 1) {
-        $('.uploader-main-form').hide();
-        $('.uploader-form').fadeIn();
-    }
-    return false;
-}
-function process_upload_playlisttype(t) {
-
-    if ($(".upload-pricing").length > 0 && $(t).val() === '0') {
-        //alert($(t).val());
-        $('.upload-album-price').fadeIn();
-    }
-}
-
-function getTrackPicture(tags) {
-    var image = tags.tags.picture;
-    if (image) {
-        var base64String = "";
-        for (var i = 0; i < image.data.length; i++) {
-            base64String += String.fromCharCode(image.data[i]);
-        }
-        var base64 = "data:image/jpeg;base64," +
-            window.btoa(base64String);
-        return base64;
-
-    } else {
-        return '';
-    }
-}
-
-window.trackProcessing = false;
-window.trackProcessed = 0;
-function generateWaveForm(files) {
-    $('.title-wave').each(function() {
-        if(!window.trackProcessing && $(this).val() === '') {
-            window.trackProcessing = true;
-            var i = $(this).data('id');
-            var nextWave = $(this).next();
-            var thisWave = $(this);
-            var avatarData = $(".avatar-data-"+i);
-            var file = window.trackfiles[i].file;
-            console.log(file)
-
-            jsmediatags.read(file, {
-                onSuccess: function(tag) {
-                    picture = getTrackPicture(tag);
-                    //console.log(picture);
-                    //console.log(tag);
-                    avatarData.val(picture);
-                    //alert('am here');
-                    if (i === 0 && $('#songAvatar-input').val() === '') {
-                        $("#songAvatar").css('background-image', 'url('+picture+')');
-                        $("#songAvatar").fadeIn();
-                    }
-                    finalizeGenerateWave(files, file, i,nextWave,thisWave);
-                },
-                onError: function(error) {
-                    console.log(':(', error.type, error.info);
-                    //we cannot read
-                    finalizeGenerateWave(files,file, i,nextWave,thisWave);
-                }
-            });
-        }
-    });
-}
-
-function hideItsProgress(i) {
-    var canHide = true;
-
-    if ($(".title-wave-"+i).val() === "") return false;
-    if ($(".title-wave2-"+i).val() === "") return false;
-
-    if ($(".track-file-"+i).val() === "") return false;
-    if (canHide) {
-        var progress = $(".the-progress-" +i);
-        progress.hide();
-    }
-
-}
-function finalizeGenerateWave(files,file, i,nextWave,thisWave) {
-    SoundCloudWaveform.generate(file, {
-        canvas_width: 600,
-        canvas_height: 45,
-        bar_gap : 0,
-        bar_width: 3,
-        wave_color : ''+settingswaveColor+'',
-        onComplete: function(png, pixels) {
-
-            thisWave.val(png);
-            SoundCloudWaveform.generate(file, {
-                canvas_width: 600,
-                canvas_height: 45,
-                bar_gap : 0,
-                bar_width: 3,
-                wave_color : ''+settingswaveColored+'',
-                onComplete: function(png, pixels) {
-                    nextWave.val(png);
-                    window.trackProcessing = false;
-
-                    hideItsProgress(i);
-                    generateWaveForm(files);
-
-                    if (i === $('.title-wave').length - 1) {
-                        $("#song--upload-form").data('not-ready', false);
-                        $('.main-audio').val('');
-                    }
-                }
-            });
-        }
-    });
-}
-// Animation on Scroll
-function initAnimation() {
-    var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    if (isMobile == false) {
-        $('*[data-animation]').addClass('animated');
-        $('.animated').waypoint(function (down) {
-            var elem = $(this);
-            var animation = elem.data('animation');
-            if (!elem.hasClass('visible')) {
-                var animationDelay = elem.data('animation-delay');
-                if (animationDelay) {
-                    setTimeout(function () {
-                        elem.addClass(animation + ' visible');
-                    }, animationDelay);
-                } else {
-                    elem.addClass(animation + ' visible');
-                }
-            }
-        }, {
-            offset: $.waypoints('viewportHeight')
-            //offset: 'bottom-in-view'
-            //offset: '95%'
-        });
-    }
-}
-
-function pageLoader() {
-    NProgress.configure({ showSpinner: false });
-    NProgress.start();
-}
-function pageLoaded() {
-    NProgress.done();
-}
-
-function buildLink(link, param) {
-    var result = baseUrl;
-    var append = "";
-    if (param !== undefined) {
-        for(i=0;i<param.length;i++) {
-            append += (append.length > 0) ? '&'+param[i].key+'='+param[i].value : param[i].key+'='+param[i].value;
-        }
-    }
-    if (permaLink === 1) {
-        result += link;
-        if(param !== undefined) {
-            result += '?'+append;
-        }
-    } else {
-        result += '?p='+link;
-        if(param !== undefined) {
-            result += '&'+ append;
-        }
-    }
-    return result;
-}
-
-window.autocollapsed = false;
-function load_page(url, f) {
-    window.onpopstate = function(e) {
-        load_page(window.location, true);
-    };
-    //if (url == window.location && f == undefined) return false;
-
-    pageLoader();
-    $.ajax({
-        url: url,
-        cache: false,
-        type: 'GET',
-        success: function(data) {
-            if(data === 'login') {
-                changeAuthModal('.login-form');
-                pageLoaded();
-            } else {
-                try {
-                    data = jQuery.parseJSON(data);
-                    if (data.type !== undefined) {
-                        if (data.type == 'error') {
-                            notify(data.message, data.type);
-                            pageLoaded();
-                            return false;
-                        }
-                    }
-                    $('.videoplayer').css('visibility', 'hidden');
-                    var content = data.content;
-                    var container = data.container;
-                    var title = data.title;
-                    var collapsed = data.collapsed;
-                    if ($('body').hasClass('side-collapsed')) {
-                        //leave it like that
-                        if (!collapsed) {
-                            if (window.autocollapsed) {
-                                $('body').removeClass('side-collapsed')
-                            }
-                        }
-                    } else {
-                        if (collapsed) {
-                            window.autocollapsed = true;
-                            $('body').addClass('side-collapsed')
-                        } else {
-                            if (window.autocollapsed) {
-                                $('body').removeClass('side-collapsed')
-                            }
-                        }
-                    }
-                    $(container).html(content);
-                    $('body').removeClass('modal-open');
-                    $('.modal-backdrop').remove();
-                    $("#side-menu").html(data.menu);
-                    $("#side-menu li a").removeClass('active');
-                    $("#side-menu li #"+data.active_menu+'-menu').addClass('active');
-                    setTimeout(function() {
-                        validatePlayingSong();//if any going
-                    }, 200)
-                } catch(e) {
-                    //window.open(url, '_self');
-                }
-                document.title = title;
-                window.history.pushState({}, 'New URL:' + url, url);
-                $(window).scrollTop(0);
-                reloadInit();
-                pageLoaded();
-
-                $('body').click();
-            }
-
-        },
-        error: function() {
-            pageLoaded();
-            //login_required();
-        }
-    });
-    return false;
-}
-
-function scrollToBottom(container) {
-    container.animate({scrollTop : container.prop("scrollHeight")}, 200)
-}
-
-function reloadInit(paginate) {
-    initAnimation();
-
-    try {
-        $(".timeago").timeago();
-    } catch(e) {
-        //console.log(e);
-    }
-
-    try {
-
-        $('.rich-editor').each(function() {
-
-            $('#' + $(this).attr('id') ).summernote({
-                placeholder: 'Hello bootstrap 4',
-                tabsize: 2,
-                height: 500
-            });
-        })
-    } catch (e) {}
-
-    $('#selected-songs').sortable({
-        items: '.each-upload-track',
-        containment: 'window',
-        appendTo: 'body',
-        helper: 'clone',
-        update: function(e, ui) {
-        }
-    });
-
-
-    $('video').mediaelementplayer({
-        pluginPath: 'https://cdnjs.com/libraries/mediaelement-plugins/',
-        shimScriptAccess: 'always',
-        //stretching: 'none',
-        autoplay: true,
-        features: ['playpause', 'current', 'progress', 'duration', 'speed', 'skipback', 'jumpforward', 'tracks', 'markers', 'volume', 'chromecast', 'contextmenu', 'flash', 'fullscreen'],
-        success: function (media) {
-            $('.videoplayer').css('visibility', 'visible');
-        media.addEventListener('ended', function (e) {
-
-
-        }, false);
-
-        media.addEventListener('playing', function (e) {
-        });
-            media.addEventListener('play', function (e) {
-               var videoid = $('.videoplayer').data('id');
-               $.ajax({
-                   url : buildLink('video/play', [{key: 'id', value: videoid}])
-               });
-            });
-    },
-});
-
-
-    if ($('body').hasClass('side-menu-open')) {
-        $('body').removeClass('side-menu-open')
-    }
-
-
-    $('.datepicker').pickadate({
-        format : 'd/m/yyyy'
-    })
-    tippy('[data-toggle="tooltip"]',{
-        animation: 'shift-toward',
-        arrow: true
-    });
-
-    tippy('.mtitle',{
-        animation: 'shift-toward',
-        arrow: true
-    });
-
-    tippy('.mtitle-light',{
-        animation: 'shift-toward',
-        arrow: true,
-        interactive : true,
-        theme : 'light',
-        allowTitleHTML: true,
-    });
-    const template = document.querySelector('#popover-default')
-    const initialText = (template !== null) ? template.textContent : '';
-    const tip = tippy('.user-link', {
-        allowTitleHTML: true,
-        arrow : true,
-        maxWidth: '200px',
-        theme: 'light',
-        html : '#popover-default',
-        interactive : true,
-        onShow(instance) {
-            var userid = this._reference.getAttribute('data-id');
-            const content = this.querySelector('.tippy-content')
-
-            if (tip.loading || content.innerHTML !== initialText) return
-
-            tip.loading = true;
-
-            $.ajax({
-                url : buildLink('user/card', [{key: 'id', value: userid}]),
-                success : function(r) {
-                    content.innerHTML = r;
-                    tip.loading = false
-                }
-            })
-        },
-        popperOptions: {
-            modifiers: {
-                preventOverflow: {
-                    enabled: false
-                },
-                hide: {
-                    enabled: false
-                }
-            }
-        }
-    })
-
-    $('.mtooltip').tooltip({
-        trigger: 'hover'
-    });
-    $('.mtooltip').on('click', function() {
-        $(this).tooltip('hide')
-    });
-
-    $('.cp').colorpicker();
-
-    if ($('.chats-container').length > 0) {
-        if(paginate === undefined) {
-            setTimeout(function() {
-                scrollToBottom($('.chats-container'))
-            }, 100);
-        }
-        $('.chats-container').scroll(function() {
-            if ($(this).scrollTop() == 0 ) {
-                globalPaginate('chats-container');
-            }
-        })
-    };
-
-    if($('#charts-stats').length > 0) {
-        var time = $('#charts-stats').data('time');
-        var id = $('#charts-stats').data('id')
-        $.ajax({
-            url: buildLink('load/charts', [{key:'time',value:time},{key: 'id', value: id}]),
-            success: function(data) {
-                var json = jQuery.parseJSON(data);
-                $.each(json.charts, function(i, c) {
-                    var yD = [];
-                    xKey = 'y';
-                    yKeys = [];
-                    labels = [];
-                    //alert(c);
-
-                    $.each(c, function(n, nC) {
-                        labels.push(nC.name);
-                        yKeys.push(n);
-                        var x = 0;
-                        $.each(nC.points, function($name, $number) {
-                            var o = (yD[x] != undefined) ? yD[x] : {y: $name};
-                            if(yD[x] != undefined) {
-                                yD[x][n] = $number;
-                            } else {
-                                o[n] = $number;
-                                yD.push(o);
-                            }
-                            x++;
-                        });
-
-                    });
-                    //alert(yD);
-
-                    var divId = 'chat-' + i;
-                    var div = $("<div id='" + divId + "' style='width: 100%;height: 300px'></div> ");
-                    $("#charts-stats ").find('img').hide();
-                    $("#charts-stats").append(div);
-                    var chartType = $("#charts-stats").data('type');
-                    if (chartType === 'bar') {
-                        Morris.Bar({
-                            element: divId,
-                            data: yD,
-                            xkey: xKey,
-                            ykeys: yKeys,
-                            labels: labels,
-                            pointSuperimposed: false,
-                            dataLabels: false,
-                            parseTime: false
-                        });
-                    } else if(chartType === 'line') {
-                        Morris.Line({
-                            element: divId,
-                            data: yD,
-                            xkey: xKey,
-                            ykeys: yKeys,
-                            labels: labels,
-                            pointSuperimposed: false,
-                            dataLabels: false,
-                            parseTime: false
-                        });
-                    } else {
-                        Morris.Area({
-                            element: divId,
-                            data: yD,
-                            xkey: xKey,
-                            ykeys: yKeys,
-                            labels: labels,
-                            pointSuperimposed: false,
-                            dataLabels: false,
-                            parseTime: false
-                        });
-                    }
-
-                });
-            }
-        })
-    }
-
-    $('.track-list').each(function() {
-        ///return false;
-        if($(this).data('loaded') === undefined) {
-            var type = $(this).data('type');
-            var typeId= $(this).data('type-id');
-            var offset = $(this).data('offset');
-            var limit = ($(this).data('limit') === undefined) ? 0 : $(this).data('limit');
-            var viewType = ($(this).data('view') === undefined) ? 'list' : $(this).data('view');
-            var container = $(this);
-            $.ajax({
-                url : buildLink('track/load', [{key: 'limit',value:limit},{key: 'type',value:type},{key: 'type_id',value:typeId},{key: 'offset',value:offset},{key:'view',value:viewType}]),
-                success : function(result) {
-                    container.find('.feed-placeholder').remove();
-                    var r = $("<div style='display: none;'></div>");
-                    r.html(result);
-                    container.append(r);
-                    container.data('loaded', true);
-                    r.fadeIn();
-                    setTimeout(function() {
-                        reloadInit();
-
-                    },300);
-                    setTimeout(function() {
-                        validatePlayingSong();//if any goin
-                        recalculateWaveImages();
-                    }, 200)
-
-                }
-            })
-        }
-    });
-
-    $('.comments-container').each(function() {
-        if($(this).data('loaded') === undefined) {
-            var type = $(this).data('type');
-            var typeId= $(this).data('type-id');
-            var offset = $(this).data('offset');
-            var container = $(this);
-            $.ajax({
-                url : buildLink('comment/load', [{key: 'type',value:type},{key: 'type_id',value:typeId},{key: 'offset',value:offset}]),
-                success : function(result) {
-                    var r = $("<div style='display: none;'></div>");
-                    r.html(result);
-                    container.append(r);
-                    container.data('loaded', true);
-                    r.fadeIn();
-                    setTimeout(function() {
-                        reloadInit();
-                    },300)
-
-                }
-            })
-        }
-    });
-    prepare_track_time_comments();
-    if ($(window).width() > 1000) {
-        try {
-            $('#page-container .fixed-left-content').stick_in_parent({parent: '#page-container'});
-        } catch(e) {
-        }
-    }
-
-    $('.select-input').each(function() {
-        if($(this).data('ui-select') && !$(this).hasClass('selectized')) {
-
-            $(this).selectize({
-                create: true,
-                sortField: 'text'
-            });
-        }
-    });
-
-    if ($('#track-header').length > 0 && $('#track-header').data('bg-set') === false) {
-        Vibrant.from($('#track-header').data('image')).getPalette().then(function(palette) {
-            //console.log(palette);
-            //alert('linear-gradient(135deg, rgb('+palette.LightMuted._rgb+') 0%, rgb('+palette.Vibrant._rgb+') 100%);')
-            $('#track-header .bg-container').css('background', 'linear-gradient(to right, rgb('+palette.DarkVibrant._rgb+') ,rgb('+palette.Muted._rgb+'), rgb('+palette.Vibrant._rgb+')) ')
-        });
-    }
-
-    $('.input-tags').each(function() {
-        var data = "search/tags";
-        if ($(this).data('url') !== undefined) data = $(this).data('url');
-        window.globalSelect = $(this).selectize({
-            plugins: ['remove_button','drag_drop'],
-            delimiter: ',',
-            persist: false,
-            options: [],
-            preload: true,
-            closeAfterSelect: true,
-            create: function(input) {
-                return {
-                    value: input,
-                    text: input
-                }
-            },
-            load: function(query, callback) {
-                if (!query.length) return callback();
-                $.ajax({
-                    url: buildLink(data, [{key: 'term', value: encodeURIComponent(query)}]) ,
-                    type: 'GET',
-                    error: function() {
-                        callback();
-                    },
-                    success: function(res) {
-                        res = jQuery.parseJSON(res);
-                        callback(res);
-                    }
-                });
-            }
-        });
-    });
-
-
-
-    $('.input-tags-fetch').each(function() {
-        var data = "search/tags";
-        if ($(this).hasClass('selectized')) return false;
-        if ($(this).data('url') !== undefined) data = $(this).data('url');
-        $(this).selectize({
-            plugins: ['remove_button','drag_drop'],
-            delimiter: ',',
-            persist: false,
-            options: [],
-            preload: true,
-            closeAfterSelect: true,
-            load: function(query, callback) {
-                if (!query.length) return callback();
-                $.ajax({
-                    url: buildLink(data, [{key: 'term', value: encodeURIComponent(query)}]) ,
-                    type: 'GET',
-                    error: function() {
-                        callback();
-                    },
-                    success: function(res) {
-                        res = jQuery.parseJSON(res);
-                        callback(res);
-                    }
-                });
-            }
-        });
-    });
-
-
-
-    $('.slider').each(function() {
-        var id = $(this).find('.swiper-container').attr('id');
-        var next = $(this).find('.scroll-right').attr('id');
-        var prev = $(this).find('.scroll-left').attr('id');
-        var swiper = new Swiper('#'+id, {
-            slidesPerView: 2,
-            spaceBetween: 1,
-            loop: false,
-            speed: 1500,
-            navigation: {
-                nextEl: '#'+next,
-                prevEl: '#'+prev,
-            },
-            breakpoints: {
-                2560: {
-                    slidesPerView: 4,
-                    spaceBetween: 10,
-                },
-                1800: {
-                    slidesPerView: 4,
-                    spaceBetween: 10,
-                },
-                1400: {
-                    slidesPerView: 3,
-                    spaceBetween: 10,
-                },
-                992: {
-                    slidesPerView: 2,
-                    spaceBetween: 10,
-                },
-                768: {
-                    slidesPerView: 2,
-                    spaceBetween: 10,
-                },
-                640: {
-                    slidesPerView: 3,
-                    spaceBetween: 15,
-                },
-                480: {
-                    slidesPerView: 1,
-                },
-                375: {
-                    slidesPerView: 1,
-                    spaceBetween: 0,
-                }
-            },
-        });
-    });
-
-    $('.full-slider').each(function() {
-        var id = $(this).find('.swiper-container').attr('id');
-        var next = $(this).find('.scroll-right').attr('id');
-        var prev = $(this).find('.scroll-left').attr('id');
-        var swiper = new Swiper('#'+id, {
-            slidesPerView: 2,
-            spaceBetween: 5,
-            loop: false,
-            speed: 1500,
-            navigation: {
-                nextEl: '#'+next,
-                prevEl: '#'+prev,
-            },
-            breakpoints: {
-                4560 : {
-                    slidesPerView: 14,
-                },
-                4200 : {
-                    slidesPerView: 13,
-                },
-                3900 : {
-                    slidesPerView: 12,
-                },
-                3560 : {
-                    slidesPerView: 11,
-                },
-                3200 : {
-                    slidesPerView: 10,
-                },
-                2900 : {
-                    slidesPerView: 9,
-                },
-                2560: {
-                    slidesPerView: 8,
-                },
-                2200 : {
-                    slidesPerView: 7,
-                },
-                1900: {
-                    slidesPerView: 5,
-                },
-                1600 : {
-                    slidesPerView: 5,
-                },
-                1400: {
-                    slidesPerView: 4,
-                },
-                992: {
-                    slidesPerView: 4,
-                    spaceBetween: 10,
-                },
-                768: {
-                    slidesPerView: 3,
-                    spaceBetween: 10,
-                },
-                640: {
-                    slidesPerView: 2,
-                    spaceBetween: 15,
-                },
-                480: {
-                    slidesPerView: 2,
-                },
-                375: {
-                    slidesPerView: 1,
-                    spaceBetween: 0,
-                }
-            },
-        });
-    })
-
-    $('.side-slider').each(function() {
-        var id = $(this).find('.swiper-container').attr('id');
-        var next = $(this).find('.scroll-right').attr('id');
-        var prev = $(this).find('.scroll-left').attr('id');
-        var swiper = new Swiper('#'+id, {
-            slidesPerView: 2,
-            spaceBetween: 1,
-            loop: false,
-            autoplay: true,
-            speed: 1500,
-            navigation: {
-                nextEl: '#'+next,
-                prevEl: '#'+prev,
-            },
-            breakpoints: {
-                2560: {
-                    slidesPerView: 2,
-                    spaceBetween: 10,
-                },
-                1800: {
-                    slidesPerView: 2,
-                    spaceBetween: 10,
-                },
-                1400: {
-                    slidesPerView: 2,
-                    spaceBetween: 10,
-                },
-                992: {
-                    slidesPerView: 2,
-                    spaceBetween: 10,
-                },
-                768: {
-                    slidesPerView: 2,
-                    spaceBetween: 10,
-                },
-                640: {
-                    slidesPerView: 2,
-                    spaceBetween: 10,
-                },
-                480: {
-                    slidesPerView: 2,
-                    spaceBetween: 10,
-                },
-                375: {
-                    slidesPerView: 1,
-                    spaceBetween: 10,
-                }
-            },
-        });
-    })
-    $("#music-player").jPlayer("option", "cssSelectorAncestor", '.sound-player');
-}
-
-window.currentPlaying  = 0;
-window.currentPlayingType = '';
-window.currentPlayingTypeId = '';
-window.repeatSong = false;
-window.currentPlayingObject = null;
-
-function loadPlayer(type, typeId) {
-    $('.sound-playlist-content').data('offset', 0);
-    $('.sound-playlist-content').data('type', type);
-    $('.sound-playlist-content').data('typeid', typeId);
-    $.ajax({
-        url : buildLink('track/load', [{key: 'type', value:type},
-            {key:'type_id', value:typeId},
-            {key:'view', value:'small-inline'},
-            {key: 'offset', value: 0}]),
-        success : function(r) {
-            $('.sound-playlist-content .content').html(r);
-
-            validatePlayingSong();
-            if (window.currentPlaying !== 0) {
-                $('.sound-playlist-content .each-inline-track').removeClass('track-hover-display-container');
-                $('.sound-playlist-content .each-inline-track').addClass('track-hover-display-container');
-                $('.sound-playlist-content').find('.each-track-'+window.currentPlaying).addClass('active-track-mini-inline current-seek');
-                $('.sound-playlist-content').find('.each-track-'+window.currentPlaying +" .play-controls").html($("#seek-template").html());
-                $('.sound-playlist-content').find('.each-track-'+window.currentPlaying).removeClass('track-hover-display-container');
-                $("#music-player").jPlayer("option", "cssSelectorAncestor", '.sound-player');
-            }
-        }
-    })
-}
-function toogleSoundPlaylist() {
-    if ($("#sound-playlists").css('display') === 'none') {
-        $("#sound-playlists").fadeIn();
-        if ($('.sound-playlist-content .content').html() === '') {
-            //lets query the feed list to play from
-            loadPlayer('feed', '')
-        }
-    } else {
-        $("#sound-playlists").hide();
-    }
-    return false;
-}
-window.playStopPercent = 0;
-window.playBuyType = null;
-window.playBuyTrack = null;
-function playSong(b) {
-    var button = $(b);
-
-    window.currentPlayingObject = b;
-    trackId = button.data('id');
-
-
-    if (!window.repeatSong && (trackId === window.currentPlaying && typeId === window.currentPlayingTypeId)) return false;
-    window.showTimeComments = [];
-    type = button.data('type');
-    typeId = button.data('typeid');
-    owner = button.data('owner');
-    ownerLink = button.data('owner-link');
-    art = button.data('art');
-    title = button.data('title');
-    $.ajax({
-        url : buildLink('tr/a/' + trackId + '/details'),
-        success : function(r) {
-            var json = jQuery.parseJSON(r);
-
-            trackUrl = json.url;
-            link = json.link;
-            if (json.limit !== 0) {
-                //@TODO limit playing by certain seconds for default
-                if (trackUrl === '') {
-                    //that means the user must by
-                    return buy_item(json.buyType, json.buyTrack);
-                } else {
-                    if (json.percentage > 0) {
-                        window.playStopPercent = json.percentage;
-                        window.playBuyTrack = json.buyTrack;
-                        window.playBuyType = json.buyType;
-                    } else {
-                        window.playStopPercent = 0;
-                    }
-                }
-            } else {
-                window.playStopPercent = 0;
-            }
-            window.playingWave = json.wave;
-            window.playingWaveColored = json.wave_colored;
-
-            window.currentPlaying = trackId;
-            window.currentPlayingType = type;
-            window.currentPlayingTypeId = typeId;
-            loadPlayer(type, typeId);
-            validatePlayingSong();
-
-            if (type === 'playlist') {
-                if ($('.playlist-url-'+typeId).length > 0) link = $('.playlist-url-'+typeId).data('link');
-            }
-            $.ajax({
-                url : buildLink('track/set/views', [{key : 'track', value: trackId}])
-            });
-            $('.sound-container').fadeIn();
-            $('.sound-container .hide').removeClass('hide');
-            $('.sound-container .detail #title-link').html(title);
-            $('.sound-container .detail #title-link').attr('href', link);
-            $('.sound-container .detail #owner-link').html(owner);
-            $('.sound-container .detail #owner-link').attr('href', ownerLink);
-            $('.sound-container .detail .img').css("background-image", "url("+art+")");
-            $("#music-player").jPlayer("option", "cssSelectorAncestor", '.sound-player');
-            $("#music-player").jPlayer("setMedia",{mp3:trackUrl}).jPlayer("play");
-
-            if ($('.playlist-profile').length > 0) {
-                Vibrant.from(art).getPalette().then(function(palette) {
-                    $('#track-header .bg-container').css('background', 'linear-gradient(to right, rgb('+palette.DarkVibrant._rgb+') ,rgb('+palette.Muted._rgb+'), rgb('+palette.Vibrant._rgb+')) ')
-                });
-
-                $('.playlist-profile .track-image').css('background-image', 'url('+art+')');
-            } else if (window.currentPlayingType === 'playlist' && $(".playlist-list-art-" + window.currentPlayingTypeId).length > 0) {
-                $(".playlist-list-art-" + window.currentPlayingTypeId + ' .art').css('background-image', 'url('+art+')');
-            }
-        }
-    })
-
-    return false;
-}
-
-function validatePlayingSong() {
-
-    if (window.currentPlaying !== 0) {
-        var trackId = window.currentPlaying;
-
-        var button = $(".track-play-button-" + window.currentPlaying);
-        if (button.length > 0) {
-            wave = window.playingWave;
-
-            waveColored = window.playingWaveColored;
-            $('.current-seek').find('.jp-audio').remove();
-            $('.current-seek').find('.current-seek-wave').remove();
-            $('.current-seek').removeClass('current-seek');
-
-
-            if (window.currentPlayingType === 'playlist') {
-                //alert(".playlist-container-"+window.currentPlayingTypeId)
-                $(".playlist-container-"+window.currentPlayingTypeId).addClass('current-seek');
-                $('.current-seek  .play-controls').append($("#seek-template").html());
-                $(".playlist-tracks-list-"+window.currentPlayingTypeId+ " .track-"+trackId).addClass("current-seek");
-                //consider the playlist container
-                //$("#sound-playlists .track-"+trackId).addClass("current-seek");
-                //we need to remove duplicate
-                $(".playlist-tracks-list-"+window.currentPlayingTypeId+ " .track .play-controls").html("");
-                $(".playlist-tracks-list-"+window.currentPlayingTypeId+ " .each-track-"+window.currentPlaying+" .play-controls").html($("#seek-template").html());
-
-            } else {
-                $(".track-"+trackId).addClass("current-seek");
-                $('.current-seek  .play-controls').append($("#seek-template").html());
-            }
-
-
-            var height = $('.track-'+trackId + ' .detail').height() + 5;
-
-            $('.track-'+trackId+' .jp-play , .track-'+trackId+' .jp-pause').css({ 'top' : '-' + height + 'px' });
-
-            //replace the waveform
-            // $(".current-seek .jp-progress").css('background-image', 'url('+wave+')');
-            $(".current-seek .jp-progress").prepend("<img src='"+wave+"' class='current-seek-wave wave-image'/>");
-            $(".current-seek .jp-progress .jp-seek-bar .jp-play-bar").append("<img src='"+waveColored+"' class='current-seek-wave wave-image'/>")
-            $("#music-player").jPlayer("option", "cssSelectorAncestor", '.sound-player');
-            recalculateWaveImages()
-        }
-
-    }
-}
-
-function playprev() {
-    if (window.currentPlaying !== 0) {
-        var prevTrack = $('#sound-playlists .track-' + window.currentPlaying).prev();
-        if (prevTrack.hasClass('each-inline-track')) {
-            playSong(prevTrack.find('.play-button'))
-        }
-    }
-    return false;
-}
-
-function playNext() {
-    if (window.currentPlaying !== 0) {
-        var nextTrack = $('#sound-playlists .track-' + window.currentPlaying).next();
-        if (nextTrack.hasClass('each-inline-track')) {
-            playSong(nextTrack.find('.play-button'))
-        } else {
-            paginateSoundPlaylist(true)
-        }
-    }
-    return false;
-}
-
-function repeatSongTrigger(t) {
-    if (window.repeatSong === true) {
-        window.repeatSong = false;
-        $(t).find('i').removeClass('colored')
-    } else {
-        window.repeatSong = true;
-        $(t).find('i').addClass('colored')
-    }
-    return false;
-}
-
-window.trackPaginating = false;
-function paginateTracks() {
-    if ($('.track-list').data('loaded') === undefined) return false;
-    if ( $('.track-list').data('no-paginate') === undefined && $('.track-list').length > 0 && window.trackPaginating === false && $('.track-list').data('ended') === undefined) {
-        window.trackPaginating = true;
-        var offset = $('.track-list').data('offset');
-        var typeId = $('.track-list').data('type-id');
-        var type = $('.track-list').data('type');
-        var viewType = ($('.track-list').data('view') === undefined) ? 'list' : $('.track-list').data('view');
-        $('.track-list').append('<div class="ms_bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>');
-        $.ajax({
-            url : buildLink('track/paginate', [
-                {key: 'offset', value: offset},
-                {key: 'view', value: viewType},
-                {key: 'type_id',value:typeId},
-                {key:'type',value:type}]),
-            success : function(r) {
-                window.trackPaginating = false;
-                try{
-                    var result = jQuery.parseJSON(r);
-                    $('.track-list').data('offset', result.offset);
-                    $('.track-list').find('.ms_bars').remove();
-                    r = $("<div style='display: none;'></div>");
-                    r.html(result.content);
-                    $('.track-list').append(r);
-                    r.fadeIn();
-                    if (result.content === '') {
-                        $('.track-list').data('ended', true);
-                    }
-                    setTimeout(function() {
-                        reloadInit();
-                    },300);
-                    setTimeout(function() {
-                        validatePlayingSong();//if any goin
-                    }, 300);
-                } catch(e) {
-                    $('.track-list').data('ended', true);
-                    $('.track-list').find('.ms_bars').remove();
-                }
-            }
-        })
-    }
-}
-
-function paginateSoundPlaylist(doNext) {
-    if (window.trackPaginating === false && $('.sound-playlist-content').data('ended') === undefined) {
-        window.trackPaginating = true;
-        var offset = $('.sound-playlist-content').data('offset');
-        var typeId = $('.sound-playlist-content').data('typeid');
-        var type = $('.sound-playlist-content').data('type');
-        var viewType = 'small-inline';
-        $('.sound-playlist-content .content').append('<div class="ms_bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>');
-        $.ajax({
-            url : buildLink('track/paginate', [
-                {key: 'offset', value: offset},
-                {key: 'view', value: viewType},
-                {key: 'type_id',value:typeId},
-                {key:'type',value:type}]),
-            success : function(r) {
-                window.trackPaginating = false;
-                try{
-                    var result = jQuery.parseJSON(r);
-                    $('.sound-playlist-content').data('offset', result.offset);
-                    $('.sound-playlist-content .content').find('.ms_bars').remove();
-                    r = $("<div style='display: none;'></div>");
-                    r.html(result.content);
-                    $('.sound-playlist-content .content').append(r);
-                    r.fadeIn();
-
-                    if (doNext !== undefined && result.content !== '') {
-                        playNext();
-                    }
-
-                    if (result.content === '') {
-                        $('.sound-playlist-content').data('ended', true);
-                    }
-                    setTimeout(function() {
-                        reloadInit();
-                    },300);
-                    setTimeout(function() {
-                        validatePlayingSong();//if any goin
-                    }, 300)
-                } catch(e) {
-                    $('.sound-playlist-content').data('ended', true);
-                    $('.sound-playlist-content .content').find('.ms_bars').remove();
-                }
-            }
-        })
-    }
-}
-
-
-function ajaxAction(url) {
-    pageLoader();
-    $.ajax({
-        url : url,
-        success : function(d) {
-            pageLoaded();
-            if (d === 'login') {
-                changeAuthModal('.login-form');
-            }
-            try{
-                var r = jQuery.parseJSON(d);
-                $('body').click()//to remove unwanted dropdowns
-                var m = r.message;var t = r.type;var v = r.value;var c = r.content,modal = r.modal,table=r.table;
-                if (t === 'url') {
-                    load_page(v);
-                } else if(t === 'function') {
-                    if (v !== undefined && v !== '') eval(v)(c);
-                } else if(t === 'modal-function') {
-                    $(modal).modal("hide");
-                    if (v !== undefined && v !== '') eval(v)(c);
-                } else if(t === 'modal-url') {
-                    $(c).modal("hide");
-                    load_page(v)
-                } else if(t === 'reload') {
-                    load_page(window.location.href);
-                } else if(t === 'reload-modal') {
-                    $(c).modal("hide");
-                    load_page(window.location.href);
-                }
-                if (t === 'error') {
-                    notify(m, 'error');
-                } else {
-                    if (m !== '' ) notify(m, 'success');
-                }
-            } catch (e) {
-            }
-        }
-    })
-}
-
-window.globalPaginating = false
-function globalPaginate(container) {
-    var btnId = '#'+container + '-loadmore-button';
-    var loadMoreContainer = '#'+container + '-load-more-container';
-    var container = $("#"+container);
-    if (container.length > 0 && window.globalPaginating === false && container.data('ended') === undefined) {
-
-        window.globalPaginating = true;
-        var offset = container.data('offset');
-        var data = container.data('param');
-        //alert(buildLink(container.data('paginate-url'), [{key: 'offset', value: offset},{key: 'data',value:data}]))
-        showFormLoader(btnId);
-        $.ajax({
-            type : 'POST',
-            data : {data : data},
-            url : buildLink(container.data('paginate-url'), [{key: 'offset', value: offset}]),
-            success : function(r) {
-                window.globalPaginating = false;
-                hideFormLoader(btnId);
-                //alert(r);
-                try{
-                    var result = jQuery.parseJSON(r);
-                    container.data('offset', result.offset);
-                    r = $("<div style='display: none;'></div>");
-                    r.html(result.content);
-                    if (container.data('prepend') === undefined) {
-                        var newLoadMore = $(loadMoreContainer).clone();
-                        $(loadMoreContainer).remove();
-                        container.append(r);
-                        container.append(newLoadMore)
-                    } else {
-
-                        container.prepend(r);
-
-                    }
-                    r.fadeIn();
-                    if (result.content === '') {
-                        container.data('ended', true);
-                        $(btnId).hide();
-                    }
-                    setTimeout(function() {
-                        reloadInit(true);
-                    },300);
-                    setTimeout(function() {
-                        validatePlayingSong();//if any goin
-                    }, 300);
-                } catch(e) {
-                    container.data('ended', true);
-                    $(btnId).hide();
-                }
-            }
-        })
-    }
-}
-
-window.showTimeComments = [];
-$(function() {
-
-    reloadInit();
-    $(document).on("click", ".confirm", function() {
-        return confirm($(this).attr('href'), $(this).data('message'), $(this).data('ajax-action'));
-    });
-    recalculateWaveImages();
-    $(window).scroll(function() {
-        if($(window).scrollTop() + $(window).height() == $(document).height()) {
-            paginateTracks();
-
-            if ($(".main-loadmore-container").length > 0) {
-                globalPaginate($(".main-loadmore-container").data('container'));
-            }
-        }
-    });
-
-    $('.sound-playlist-content').scroll(function() {
-        if($(this).find('.content').height() - $(this).scrollTop() <= $('.sound-playlist-content').height()) {
-            paginateSoundPlaylist();
-        }
-    })
-
-    $(document).on('submit','.general-form',function() {
-        var url = $(this).attr('action');
-        var f = $(this);
-        var btId = f.find('.ladda-button').prop('id');
-        var btnName = "#" + f.find('.ladda-button').prop('id');
-        if ($("#selected-songs").length > 0) {
-            var canContinue = true;
-            $('.track-file').each(function() {
-                if ($(this).val() === '') canContinue = false;
-            })
-
-            $('#selected-songs .progress').each(function() {
-                //alert($(this).css('display'));
-                if ($(this).css('display') !== 'none') canContinue = false;
-            })
-            if (!canContinue) return false;
-        }
-        if (f.data('not-ready') !== undefined && f.data('not-ready')) return false;
-        if (btId !== undefined && btId !== '') showFormLoader(btnName);
-
-
-
-        var progress = null;
-        if (f.data('upload')) {
-            progress = $(f.data('upload'));
-            progressPercent = 0;
-        }
-        f.ajaxSubmit({
-            url : url,
-            uploadProgress: function(event, position, total, percentComplete) {
-                var percentVal = percentComplete;
-
-                if (progress !== null) {
-                    progress.find('.progress-bar').css('width', percentVal + '%');
-                    progress.find('.progress-bar').html(percentVal + '%');
-                    progress.show();
-                }
-            },
-            success : function(d) {
-                try{
-                    var r = jQuery.parseJSON(d);
-                    $('body').click()//to remove unwanted dropdowns
-                    var m = r.message;var t = r.type;var v = r.value;var c = r.content,modal = r.modal,table=r.table;
-                    if (t === 'url') {
-                        load_page(v);
-
-                    } else if(t === 'function') {
-                        if (v != undefined && v != '') eval(v)(c);
-                    } else if(t === 'modal-function') {
-                        $(modal).modal("hide");
-                        if (v !== undefined && v !== '') eval(v)(c);
-                    } else if(t === 'modal-url') {
-                        $(c).modal("hide");
-                        load_page(v)
-                    } else if(t === 'reload') {
-                        load_page(window.location.href);
-                    } else if(t === 'reload-modal') {
-                        $(c).modal("hide");
-                        load_page(window.location.href);
-                    } else if(t === 'normal-url') {
-                        $(c).modal("hide");
-                        window.location.href=v;
-                    }
-                    if (t === 'error' || t === 'error-function') {
-                        notify(m, 'error');
-                        if (v != undefined && v != '') eval(v)(c);
-                    } else {
-                        if (m !== '' ) notify(m, 'success');
-                    }
-                    if (btId !== undefined  && btId !== '') hideFormLoader(btnName);
-                } catch (e) {
-                    if (btId !== undefined  && btId !== '') hideFormLoader(btnName);
-                }
-
-                if (progress !== null) {
-                    progress.hide();
-                    progress.find('.progress-bar').css('width', '0%');
-                    progress.find('.progress-bar').html('0%');
-                }
-            }
-        });
-        return false;
-    })
-
-    $(document).on('click', '[data-ajax=true]', function() {
-        load_page($(this).attr('href'));
-        return false;
-    });
-
-
-
-    $("#music-player").jPlayer({
-        cssSelectorAncestor: '.sound-player',
-        play: function() {
-
-
-        },
-        ended: function () {
-            if (window.repeatSong) {
-                playSong(window.currentPlayingObject);
-            } else {
-                if (playloop) playNext();
-            }
-        },
-        timeupdate : function(event) {
-            //console.log(event.jPlayer.status.currentPercentRelative);
-            //console.log();
-
-            var percent = Math.round(event.jPlayer.status.currentPercentRelative);
-            var user = ".time-comment-" + percent + '-' + window.currentPlaying;
-            //console.log(event.jPlayer.status.currentPercentRelative);
-            //console.log(jQuery.inArray(percent, window.showTimeComments));
-            if ($(user).length > 0 && jQuery.inArray(percent, window.showTimeComments) === -1) {
-                $('body').click();
-                var user = document.querySelector(user);
-                window.showTimeComments.push(percent);
-                var ttt = user._tippy;
-                ttt.show();
-                setTimeout(function() {
-                    ttt.hide();
-                }, 4500);
-            } else {
-
-            }
-            if (window.playStopPercent > 0) {
-                if(event.jPlayer.status.currentPercentRelative > window.playStopPercent) {
-                    $(this).jPlayer('stop');
-                    //show the buy dialog to prevent confusion
-                    buy_item(window.playBuyType, window.playBuyTrack);
-                }
-            }
-        },
-        swfPath: baseUrl + 'assets/js/',
-        supplied: "mp3,m4a",
-        wmode: "window",
-        volume: defaultVolume / 100,
-        smoothPlayBar: true,
-        keyEnabled: true
-    });
-
-
-    $(document).on('click', '.play-button', function() {
-        if (!$(this).hasClass('playlist-button')) {
-            return playSong(this);
-        }
-        return false;
-    });
-
-    $(document).on('click', '.ajax-action', function() {
-        ajaxAction($(this).attr('href'));
-        return false;
-    });
-
-    $(document).on('mouseover', '.hover-show', function() {
-        $(this).click();
-    })
-
-    $(document).on('mouseover', '.comments-container .each-comment', function() {
-        var id = $(this).attr('id');
-        $('#'+id+'-actions a').fadeIn();
-    })
-    $(document).on('mouseleave', '.comments-container .each-comment', function() {
-        $(this).find('.actions a').hide();
-    });
-
-    $(document).on("keydown", function(key) {
-        //alert(key.keyCode);
-        if(key.keyCode == 32) {
-            if($('input:focus, textarea:focus').length == 0) {
-                // Prevent the key action
-                key.preventDefault();
-                if($("#music-player").data('jPlayer').status.paused) {
-                    $("#music-player").jPlayer('play');
-                } else {
-                    $("#music-player").jPlayer('pause');
-                }
-            }
-        }
-
-        if(key.keyCode == 39) {
-            if($('input:focus, textarea:focus').length == 0) {
-                // Prevent the key action
-                key.preventDefault();
-                playNext();
-            }
-        }
-        if(key.keyCode == 37) {
-            if($('input:focus, textarea:focus').length == 0) {
-                // Prevent the key action
-                key.preventDefault();
-                playprev()
-            }
-        }
-        if(key.keyCode == 77) {
-            if($('input:focus, textarea:focus').length == 0) {
-                // Prevent the key action
-                key.preventDefault();
-                if($('.jp-unmute').is(':hidden')) {
-                    $('.jp-mute').click();
-                } else {
-                    $('.jp-unmute').click();
-                }
-            }
-        }
-        if(key.keyCode == 77) {
-            if($('input:focus, textarea:focus').length == 0) {
-                // Prevent the key action
-                key.preventDefault();
-                if($('.jp-unmute').is(':hidden')) {
-                    $('.jp-mute').click();
-                } else {
-                    $('.jp-unmute').click();
-                }
-            }
-        }
-        if(key.keyCode == 82) {
-            if($('input:focus, textarea:focus').length == 0) {
-                // Prevent the key action
-                //key.preventDefault();
-                $('.repeat-song-trigger').click();
-            }
-        }
-    });
-
-    $(document).on('click', '.reply-button', function() {
-        //first hide all comments form opened
-
-        var container = $(this).parent().parent().parent().parent();
-        var display = container.find('.comment-form').css('display');
-        $(".comments-container .comment-form").fadeOut();
-        if (display !== 'none') {
-            container.find('.comment-form').fadeOut();
-        } else {
-            container.find('.comment-form').fadeIn();
-        }
-
-        return false;
-    });
-
-    $(document).on('click', '.load-more-button', function() {
-        globalPaginate($(this).data('container'));
-        return false;
-    });
-
-    $(document).on('click', '.playlist-play-button', function() {
-        playSong($('.track-play-button'));
-        return false;
-    });
-
-    $(document).on('mouseover', '.track-hover-display-container', function() {
-        // $('.track-hover-display').hide();
-        $(this).find('.track-hover-display').fadeIn();
-    });
-
-    $(document).on('mouseleave', '.track-hover-display-container', function() {
-        $(this).find('.track-hover-display').fadeOut();
-    });
-
-    $(document).on('mousedown', '.jp-volume-bar', function() {
-        var parentOffset = $(this).offset(),
-            width = $(this).width();
-        $(window).mousemove(function(e) {
-            var x = e.pageX - parentOffset.left,
-                volume = x/width
-            if (volume > 1) {
-                $("#music-player").jPlayer("volume", 1);
-            } else if (volume <= 0) {
-                $("#music-player").jPlayer("mute");
-            } else {
-                $("#music-player").jPlayer("volume", volume);
-                $("#music-player").jPlayer("unmute");
-            }
-
-            savePlayerVolume();
-        });
-        return false;
-    });
-
-    if(localStorage.getItem("store-volume") !== null) {
-        $("#music-player").jPlayer("volume", localStorage.getItem("store-volume"));
-    }
-
-    $(document).on('mouseup', function() {
-        $(window).unbind("mousemove");
-    });
-
-    $(document).on('submit', '.searchbar', function() {
-        if ($(this).find('input').val() === '') return false;
-        var term = $(this).find('input').val();
-        var page = ($('#search-page').data('page') === undefined) ? '' : $('#search-page').data('page');
-        term = term.replace('#', '');
-        var url = buildLink("search", [{key: 'term', value: term}, {key: 'page',value:page}])
-        load_page(url);
-        return false;
-    });
-
-    $(document).on('keyup', '.searchbar input', function() {
-        if ($(this).val().length > 0 && $(window).width() > 700) {
-            $(".search-dropdown-container").fadeIn();
-            $('.search-dropdown-container').html('<div class="ms_bars mt-3"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>');
-
-            var term = $(this).val();
-            var page = ($('#search-page').data('page') === undefined) ? '' : $('#search-page').data('page');
-            term = term.replace('#', '');
-            var url = buildLink("search/dropdown", [{key: 'term', value: term}, {key: 'page',value:page}]);
-            $.ajax({
-                url : url,
-                success : function(r) {
-                    $('.search-dropdown-container').html(r);
-                }
-            });
-
-            $(document).click(function(e) {
-                if(!$(e.target).closest(".search-dropdown-container").length) $(".search-dropdown-container").hide();
-            })
-        }
-    });
-
-    $(document).click(function(e) {
-        var trigger  = $("#show-notification-btn");
-        if(!$(e.target).closest(".notification-dropdown-container").length && !$(e.target).closest(trigger).length) {
-            $(".notification-dropdown-container").hide();
-        }
-    });
-
-    setupBrowserNotification();
-
-    setInterval(function() {
-        if (window.browserNotification !== null) {
-            //window.browserNotification.showNotification("This is mes")
-        }
-        if (isLoggedIn && !window.notificationIsChecking) {
-            window.notificationIsChecking = true;
-            var push = (window.browserNotification !== null) ? true : false;
-            $.ajax({
-                url : buildLink('check/notification', [{key : 'time', value: lastTime},{key:'push',value:push}]),
-                success : function(r) {
-                    if(r === 'login') {
-                        isLoggedIn = false;
-                        return;
-                    }
-
-                    var result = jQuery.parseJSON(r);
-                    lastTime = result.time;
-
-                    if (result.notification > 0) {
-                        var value = (result.notification > 99) ? '99+' : result.notification;
-                        $('.notification-count').html(value);
-                        $('.notification-count').fadeIn();
-                    } else {
-                        $('.notification-count').hide();
-                    }
-
-                    if (result.messages > 0) {
-                        var value2 = (result.messages > 99) ? '99+' : result.messages;
-                        $('.message-count').html(value2);
-                        $('.message-count').fadeIn();
-                    } else {
-                        $('.message-count').hide();
-                    }
-                    var title = siteTitle;
-                    if (window.isFocused) {
-
-                    } else {
-                        if (result.latestNotifications.length > 0) {
-                            var body = "";
-                            if (result.latestNotifications.length > 1) {
-                                var count = result.latestNotifications.length -1;
-                                body += strings.you_have_new+" "+ count + " "+ strings.notifications;
-                                window.browserNotification.showNotification(title, {body: body});
-                            } else {
-                                var obj = result.latestNotifications[0];
-                                body = obj.full_title;
-                                window.browserNotification.showNotification(title, {body: body,image: obj.avatar});
-                            }
-                        }
-
-                        if (result.latestMessages.length > 0) {
-                            var body = "";
-                            if (result.latestMessages.length > 1) {
-                                var count = result.latestMessages.length -1;
-                                body += strings.you_have_new+" "+ count + " "+ strings.messages;
-                                window.browserNotification.showNotification(title, {body: body});
-                            } else {
-                                var obj = result.latestMessages[0];
-                                var theMessageContent = obj.message;
-                                if (obj.trackid !== '0') {
-                                    theMessageContent += (theMessageContent !== '') ? '\n '+ obj.track.title : obj.track.title;
-                                }
-                                if (obj.playlistid !== '0') {
-                                    theMessageContent += (theMessageContent !== '') ? '\n '+ obj.playlist.name : obj.playlist.name;
-                                }
-                                body = obj.full_name+'\n '+theMessageContent;
-                                window.browserNotification.showNotification(title, {body: body,image: obj.avatar});
-                            }
-                        }
-                    }
-                    window.notificationIsChecking = false;
-                }
-            });
-        }
-    }, updateTime);
-
-
-    $(document).on('click', '#stripeButton', function() {
-        var type = $(this).data('type');
-        var typeId = $(this).data('typeid');
-        var price = $(this).data('price');
-        var handler = StripeCheckout.configure({
-            key: stripeKey,
-            image: siteLogo,
-            locale: 'auto',
-            currency : currency,
-            token: function(token) {
-                //console.log(token)
-                $("#paymentMethodModal .loader").fadeIn();
-                $.ajax({
-                    url : buildLink('payment/stripe', [
-                        {key: 'type', value: type},
-                        {key: 'typeid', value: typeId},
-                        {key: 'price', value: price},
-                        {key: 'token', value: token.id}
-                    ]),
-                    success : function(r) {
-                        r = jQuery.parseJSON(r);
-                        $("#paymentMethodModal .loader").hide();
-                        if (r.status === 1) {
-                            $("#paymentMethodModal").modal('hide');
-                            notify(r.message, 'success');
-                            load_page(r.url);
-                        } else {
-                            notify(r.message, 'error');
-                        }
-                    }
-                })
-            }
-        });
-
-        handler.open({
-            name: $(this).data('title'),
-            description: $(this).data('desc'),
-            amount: $(this).data('price') * 100
-        });
-
-        // Close Checkout on page navigation:
-        window.addEventListener('popstate', function() {
-            handler.close();
-        });
-
-        return false;
-    });
-
-
-    $(window).on('blur', function() {
-        window.isFocused = false;
-    })
-    $(window).on('focus', function() {
-        window.isFocused = true;
-    });
-
-    $(document).on('click', '.navicon', function() {
-        if ($('body').hasClass('side-menu-open')) {
-            $('body').removeClass('side-menu-open')
-        }  else {
-            $('body').addClass('side-menu-open');
-            //document.body.style.overflow = 'hidden';
-        }
-        return false;
-    });
+// function toogleView(i, v) {
+//     var input = $(i);
+//     if (input.prop("checked") === false) {
+//         $(v).fadeOut();
+//     } else {
+//         $(v).fadeIn();
+//     }
+// }
+//
+// window.isFocused = true;
+// function messageSent(c) {
+//     $('.chat-form input[type=text]').val('');
+//     $('.chats-container').append(c);
+//     scrollToBottom($('.chats-container'));
+//     reloadInit();
+// }
+// function go_welcomePage(step) {
+//     if (step === 4) {
+//         var users  = '';
+//         $('.each-welcome-user input').each(function() {
+//             if ($(this).prop('checked') !== false) {
+//                 users += (users === '') ? $(this).val() : ','+$(this).val();
+//             }
+//         });
+//         pageLoader();
+//         $.ajax({
+//             url : buildLink('welcome/finish', [{key:'users', value: users}]),
+//             success : function(r) {
+//                 pageLoaded();
+//                 window.location.href = buildLink('');
+//             }
+//         });
+//     }
+//     $(".getstarted-content .step").hide();
+//     $(".getstarted-content .step-" + step).fadeIn();
+//
+//     if (step === 3) {
+//         $("#getstarted-back").removeAttr('disabled');
+//         $("#getstarted-back").removeClass('disabled');
+//         $('.progress-bar').css('width', '50%');
+//         //get all selected genres
+//         var genres  = '';
+//         $('.each-genre input').each(function() {
+//             if ($(this).prop('checked') !== false) {
+//                 genres += (genres === '') ? $(this).val() : ','+$(this).val();
+//             }
+//         });
+//         pageLoader();
+//         $.ajax({
+//             url : buildLink('welcome/load', [{key:'genres', value: genres}]),
+//             success : function(r) {
+//                 pageLoaded();
+//                 $("#getstarted-users").html(r);
+//             }
+//         });
+//     } else if(step === 2) {
+//         $("#getstarted-back").attr('disabled', 'disabled');
+//         $("#getstarted-back").prop('disabled', 'disabled');
+//     }
+//     return false;
+// }
+// function select_genre(id) {
+//
+//     if ($(".each-genre-"+id + ' input').prop('checked') !== false ) {
+//         $(".each-genre-"+id + ' i').fadeOut();
+//         $(".each-genre-"+id + ' input').removeAttr('checked');
+//     } else {
+//         $(".each-genre-"+id + ' i').fadeIn();
+//         $(".each-genre-"+id + ' input').prop('checked', 'checked');
+//     }
+//
+//     var $checkboxes = $('.each-genre input[type="checkbox"]');
+//     var countCheckedCheckboxes = $checkboxes.filter(':checked').length;
+//     if (countCheckedCheckboxes > 0) {
+//         $("#getstarted-step-2-btn").removeClass('disabled');
+//         $("#getstarted-step-2-btn").removeAttr('disabled');
+//     } else {
+//         $("#getstarted-step-2-btn").addClass('disabled');
+//         $("#getstarted-step-2-btn").attr('disabled', 'disabled');
+//     }
+//     return false;
+// }
+//
+// function getstarted_selectUser(id) {
+//     if ($(".each-welcome-user-"+id + ' input').prop('checked') !== false ) {
+//         $(".each-welcome-user-"+id + ' i').fadeOut();
+//         $(".each-welcome-user-"+id + ' input').removeAttr('checked');
+//     } else {
+//         $(".each-welcome-user-"+id + ' i').fadeIn();
+//         $(".each-welcome-user-"+id + ' input').prop('checked', 'checked');
+//     }
+//
+//     var $checkboxes = $('.each-welcome-user input[type="checkbox"]');
+//     var countCheckedCheckboxes = $checkboxes.filter(':checked').length;
+//     var width = (countCheckedCheckboxes * 10) + 50;
+//     $('.progress-bar').css('width', width+ '%');
+//     if (countCheckedCheckboxes > 0) {
+//         $("#getstarted-step-3-btn").removeClass('disabled');
+//         $("#getstarted-step-3-btn").removeAttr('disabled');
+//     } else {
+//         $("#getstarted-step-3-btn").addClass('disabled');
+//         $("#getstarted-step-3-btn").attr('disabled', 'disabled');
+//     }
+//     return false;
+// }
+//
+// function reloadCharts(url) {
+//     var genre = $("#filter-genre").val();
+//     var time = $("#filter-time").val();
+//     load_page(buildLink(url, [{key: 'genre', value: genre}, {key: 'time', value: time}]));
+// }
+// function showReportTrack(id){
+//     $("#reportTrack #report-track").val(id);
+//     $("#reportTrack").modal("show");
+//     return false;
+// }
+//
+// function showEditPlaylistModal(id) {
+//     pageLoader();
+//     $.ajax({
+//         url : buildLink('load/playlist/form', [{key: 'id' , value: id}]),
+//         success : function(r) {
+//             $("#editPlaylistModal .modal-body").html(r);
+//             pageLoaded();
+//             $("#editPlaylistModal").modal("show")
+//         }
+//     });
+//
+//     return false;
+// }
+// function changeAuthModal(form) {
+//
+//     $('.login-form').hide();
+//     $('.signup-form').hide();
+//     $('.forgot-form').hide();
+//     if (form == '.signup-form') {
+//         $('.auth-login-title').removeClass('active');
+//         $('.auth-signup-title').addClass('active');
+//     } else {
+//         $('.auth-signup-title').removeClass('active');
+//         $('.auth-login-title').addClass('active');
+//     }
+//     $(form).show();
+//     $("#authModal").modal("show");
+//     return false;
+// }
+//
+// window.playlistTrackId = null;
+// function changePlaylistModal(form, id) {
+//     if (id === undefined)  id = window.playlistTrackId;
+//     window.playlistTrackId = id;
+//     $('.playlists').hide();
+//     $('.add-playlist').hide();
+//     if (form == '.add-playlist') {
+//         $("#add-playlist-id").val(id);
+//         $('.playlist-title').removeClass('active');
+//         $('.add-playlist-title').addClass('active');
+//     } else {
+//         //load the user playlists
+//         $.ajax({
+//             url : buildLink('playlist/load', [{key:'track',value:id}]),
+//             success : function(c) {
+//                 $('.playlists').html(c);
+//             }
+//         });
+//         $('.add-playlist-title').removeClass('active');
+//         $('.playlist-title').addClass('active');
+//     }
+//     $(form).show();
+//     $("#playlistModal").modal("show");
+//     return false;
+// }
+//
+// function finishPlaylistCreate() {
+//     changePlaylistModal('.playlists');
+//     $('.add-playlist-title input').val('');
+// }
+// function finishPlaylistAdd() {
+//     changePlaylistModal('.playlists');
+// }
+// function finishLaterAdd(r) {
+//     var json = jQuery.parseJSON(r);
+//     $('.each-track-'+json.track+' .track-later span').html(json.title);
+//     if (!json.action) {
+//         if (window.location.href.match('listen-later')) {
+//             $('.each-track-'+json.track).fadeOut();
+//         }
+//     }
+// }
+//
+// function followFinished(r) {
+//     var result = r;
+//     var btn = $(".follow-"+result.id+'-btn');
+//     $('.followers-count-'+result.id).html(result.count);
+//     if (result.action) {
+//         btn.removeClass('follow');
+//         btn.html(result.text);
+//     } else {
+//         btn.addClass('follow');
+//         btn.html(result.text);
+//     }
+// }
+// function commentAdded(r) {
+//     var result = jQuery.parseJSON(r);
+//     var container = $('.comments-'+result.type+'-'+result.id);
+//
+//     var r = $("<div style='display: none;'></div>");
+//     r.html(result.comment);
+//     container.find('.comments-container-'+result.type+'-'+result.id).prepend(r);
+//     r.fadeIn();
+//     container.find('.comments-form-'+result.type+'-'+result.id).find('textarea').val('');
+//
+//     if ($('.comment-count-'+result.type+'-'+result.id).length > 0) {
+//         $('.comment-count-'+result.type+'-'+result.id).find('span').html(result.count);
+//         $('.comment-count-'+result.type+'-'+result.id).fadeIn();
+//     }
+//     setTimeout(function() {
+//         reloadInit();
+//     }, 300)
+//     //done
+// }
+//
+// function commentAddedAt(trackId) {
+//     var c = $(".track-time-comment-container-"+trackId);
+//
+//     c.find('.reply-to').hide();
+//     c.find('.reply-to input').val('');
+//     c.find('.at-value').val('');
+//     c.find('.input input').val('');
+//     loadTrackTimeComments(trackId);
+//     c.find('.clicker').hide();
+//     c.find('form').slideUp();
+// }
+//
+// function commentReported(id) {
+//     $("#comment-"+id).fadeOut();
+// }
+// function itemLiked(r) {
+//     var result = jQuery.parseJSON(r);
+//     var id = ".like-button-"+result.type+'-'+result.typeId;
+//     $(id).find('span').html(result.text);
+//     if (result.action) {
+//         $(id).addClass('liked');
+//     } else {
+//         $(id).removeClass('liked');
+//     }
+//     $(".like-count-"+result.type+'-'+result.typeId+ ' span').html(result.count);
+//     $(".like-count-"+result.type+'-'+result.typeId).fadeIn();
+//     if (result.count < 1) $(".like-count-"+result.type+'-'+result.typeId).hide();
+//     if ($("."+result.type+'-likes-'+result.typeId).length > 0) {
+//         $("."+result.type+'-likes-'+result.typeId).html(result.likes);
+//     }
+// }
+//
+// function itemReposted(r) {
+//     var result = jQuery.parseJSON(r);
+//     var type = result.playlist === '0' ? 'track' : 'playlist';
+//     var typeId = result.playlist === '0' ? result.track : result.playlist;
+//     var id = ".repost-button-"+type+'-'+typeId;
+//     $(id).find('span').html(result.text);
+//     if (result.action) {
+//         $(id).addClass('reposted');
+//     } else {
+//         $(id).removeClass('reposted');
+//     }
+//     $(".repost-count-"+type+'-'+typeId+ ' span').html(result.count);
+//     $(".repost-count-"+type+'-'+typeId).fadeIn();
+//     if (result.count < 1) $(".repost-count-"+type+'-'+typeId).hide();
+// }
+// function commentDeleted(r) {
+//     var result = jQuery.parseJSON(r);
+//     $('#comment-'+result.id).fadeOut();
+//     if ($('.comment-count-'+result.type+'-'+result.id).length > 0) {
+//         $('.comment-count-'+result.type+'-'+result.id).find('span').html(result.count);
+//         $('.comment-count-'+result.type+'-'+result.id).fadeIn();
+//     }
+//     //Job done
+// }
+// function toggleView(t, c) {
+//     if ($(t).prop('checked') === true) {
+//         $(c).fadeIn();
+//     } else {
+//         $(c).fadeOut();
+//     }
+// }
+//
+// function hideView(c) {
+//     $(c).fadeOut();
+// }
+//
+//
+//
+// function confirm(url, mess, ajax) {
+//     iziToast.show({
+//         theme: 'dark',
+//         icon: 'icon-person',
+//         title: '',
+//         overlay : true,
+//         zindex : 9999999,
+//         message: (mess === undefined) ? strings.are_your_sure : mess,
+//         position: 'center', // bottomRight, bottomLeft, topRight, topLeft, topCenter, bottomCenter
+//         progressBarColor: 'rgb(0, 255, 184)',
+//         buttons: [
+//             ['<button>'+strings.ok+'</button>', function (instance, toast) {
+//                 if (ajax === undefined || !ajax) {
+//                     window.location.href = url;
+//                     instance.hide({
+//                         transitionOut: 'fadeOutUp',
+//                         onClosing: function(instance, toast, closedBy){
+//                             console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
+//                         }
+//                     }, toast, 'buttonName');
+//                 } else {
+//                     instance.hide({
+//                         transitionOut: 'fadeOutUp'
+//                     }, toast, 'buttonName');
+//                     ajaxAction(url);
+//                 }
+//             }, true], // true to focus
+//             ['<button>'+strings.close+'</button>', function (instance, toast) {
+//                 instance.hide({
+//                     transitionOut: 'fadeOutUp',
+//                     onClosing: function(instance, toast, closedBy){
+//                         console.info('closedBy: ' + closedBy); // The return will be: 'closedBy: buttonName'
+//                     }
+//                 }, toast, 'buttonName');
+//             }]
+//         ]
+//     });
+//
+//     return false;
+// }
+//
+// function showFormLoader(f) {
+//     var l = Ladda.create( document.querySelector(f) );
+//     l.start();
+// }
+// function hideFormLoader(f) {
+//     var l = Ladda.create( document.querySelector(f) );
+//     l.stop();
+// }
+//
+// function notify(m, type) {
+//     if (type === 'error') {
+//         iziToast.error({
+//             message: m,
+//             position: 'topRight'
+//         });
+//     } else if(type === 'success') {
+//         iziToast.success({
+//             message: m,
+//             position: 'topRight'
+//         });
+//     } else {
+//         iziToast.info({
+//             message: m,
+//             position: 'topRight'
+//         });
+//     }
+// }
+//
+// function validate_fileupload(fileName, type)
+// {
+//     var allowed_extensions = new Array("jpg","png","gif");
+//     allowed_extensions = supportImagesType.split(',');
+//     if (type == 'audio') allowed_extensions = supportAudioType.split(',');
+//     if (type == 'video') allowed_extensions = supportVideoType.split(',');
+//     var file_extension = fileName.split('.').pop().toLowerCase(); // split function will split the filename by dot(.), and pop function will pop the last element from the array which will give you the extension as well. If there will be no extension then it will return the filename.
+//     //alert(file_extension)
+//     for(var i = 0; i <= allowed_extensions.length; i++)
+//     {
+//         if(allowed_extensions[i]==file_extension)
+//         {
+//             return true; // valid file extension
+//         }
+//     }
+//
+//     return false;
+// }
+//
+// window.trackfiles = [];
+// function validate_file_size(input, type) {
+//     var files = input.files;
+//     if (type === 'audio') {
+//         if ($(input).hasClass('main-audio')) {
+//             //window.trackProcessed = 0;
+//             //window.trackProcessing = false;
+//         }
+//     }
+//     for(ii = 0;ii < files.length;ii++) {
+//         var file = files[ii];
+//
+//         if (type == 'image') {
+//             if (!validate_fileupload(file.name, 'image')) {
+//                 notify(strings.notImageError, 'error')
+//                 $(input).val('');//yes
+//                 return true;
+//             }
+//
+//             if (file.size > allowPhotoSize) {
+//                 //this file is more than allow photo file
+//                 notify(strings.allowImageSizeError, 'error');
+//                 //empty the input
+//                 $(input).val('');//yes
+//                 return true;
+//             }
+//
+//
+//             if ($(input).data('placeholder') !== undefined) {
+//                 var fr = new FileReader();
+//                 fr.onload = function(){
+//                     $($(input).data('placeholder')).css('background-image', 'url('+fr.result+')');
+//                     $($(input).data('placeholder')).fadeIn();
+//                 }
+//                 fr.readAsDataURL(file);
+//
+//             }
+//         } else if(type === 'video') {
+//             if (!validate_fileupload(file.name, 'video')) {
+//                 notify(strings.notVideoError, 'error')
+//                 $(input).val('');//yes
+//                 return true;
+//             }
+//
+//             if (file.size > allowVideoSize) {
+//                 //this file is more than allow photo file
+//                 notify(strings.allowVideoSizeError, 'error');
+//                 //empty the input
+//                 $(input).val('');//yes
+//                 return true;
+//             }
+//
+//             if ($(input).hasClass('main-video')) {
+//                 $('.video-selector').hide();
+//                 $('#video-form-container').fadeIn();
+//                 var newFileName = file.name.replace(/C:\\fakepath\\/i, '').replace(/.mp4/i, '').replace(/.mov/i, '')
+//                     .replace(/.wmv/i, '').replace(/.3gp/i, '').replace(/.avi/i, '').replace(/.flv/i, '')
+//                     .replace(/.f4v/i, '').replace(/.webm/i, '');
+//
+//                 $('.video-title').val(newFileName);
+//             }
+//
+//         } else if(type === 'audio') {
+//             var i = $('.selected-track').length;
+//             //alert(i);
+//             if (!validate_fileupload(file.name, 'audio')) {
+//                 notify(strings.notAudioError, 'error')
+//                 $(input).val('');//yes
+//                 return true;
+//             }
+//
+//             if (file.size > allowAudioSize) {
+//                 //this file is more than allow photo file
+//                 notify(strings.allowAudioSizeError, 'error');
+//                 //empty the input
+//                 $(input).val('');//yes
+//                 return true;
+//             }
+//
+//             newFileName = file.name.replace(/C:\\fakepath\\/i, '').replace(/.mp3/i, '').replace(/.m4a/i, '').replace(/.mp4/i, '');
+//
+//             if ($(input).hasClass('main-audio')) {
+//                 window.trackfiles[i] = {file: file};
+//                 $("#song--upload-form").data('not-ready', true);
+//                 if ($(input).hasClass('start-main-audio')) {
+//                     $('.uploader-form').hide();
+//                     $('.uploader-main-form').fadeIn();
+//                 }
+//
+//                 var addPrice = "";
+//
+//                 var data = $("<div class=' each-upload-track each-upload-track-"+i+"'></div>");
+//                 data.append('<div class="progress-wrapper">' +
+//                     '                                                <div class="progress the-progress-'+i+'" style="height:2px">' +
+//                     '                                                    <div class="progress-bar" role="progressbar" style="width: 0%;background:black" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>' +
+//                     '                                                </div>' +
+//                     '                                            </div>');
+//
+//                 data.append("<input class='track-file track-file-"+i+"' data-id='"+i+"' required type='hidden' name='val[trackfiles][]'/>");
+//                 data.append("<input class='title-wave title-wave-"+i+"' data-id='"+i+"' type='hidden' name='val[titlewaves][]'/>");
+//                 data.append("<input type='hidden' data-id='"+i+"'  class='title-wave2 title-wave2-"+i+"' name='val[titlewaves2][]'/>");
+//                 data.append("<input type='hidden' data-id='"+i+"'  class='track-duration' name='val[durations][]'/>");
+//                 data.append("<input type='hidden' data-id='"+i+"'  class='track-size' name='val[sizes][]'/>");
+//                 data.append("<input type='hidden' data-id='"+i+"'  class='avatar-data avatar-data-"+i+"' name='val[avatardata][]'/>");
+//                 if ($(".upload-pricing").length > 0) {
+//                     //$(".upload-pricing").fadeIn();
+//                     $('#upload-store-info').hide();
+//                     addPrice = " | <a style='' class='colored' onclick='return toggle_price_pane(this)' href=''>"+strings.add_price+"</a>";
+//
+//                     var pricingTemp = $($('.upload-pricing-temp').html());
+//                     pricingTemp.find('.demo_wave').attr('name', 'demowave[]');
+//                     pricingTemp.find('.demo_wave_colored').attr('name', 'demowavecolored[]');
+//                     pricingTemp.find('input[type=number]').attr('name', 'val[prices][]');
+//
+//                     if ($(".upload-demo-file").length > 0) {
+//                         var waterMark = $("<div class='water-mark-input-container'>" +
+//                             "<hr/><label>"+strings.add_watermark_version+"</label>" +
+//                             "<input type='file' onchange=\"return validate_file_size(this, 'audio')\" data-container-id='"+i+"' class='demo-audio form-control'/>" +
+//                             "<input type='hidden' class='demo-file demo-file-"+i+"' name='val[demofiles][]'/>" +
+//                             "<input type='hidden' class='demo-wave demo-wave-"+i+"' name='val[demowave][]'/>" +
+//                             "<input type='hidden' class='demo-wave2 demo-wave2-"+i+"' name='val[demowave2][]'/>" +
+//                             "<input type='hidden' class='demo-duration demo-duration-"+i+"' name='val[demoduration][]'/>" +
+//                             "<button class='btn btn-danger btn-sm hide'>"+strings.remove_watermark_version+"</button>" +
+//                             "</div>")
+//                         pricingTemp.find('.content').append(waterMark);
+//
+//                     }
+//                 }
+//
+//                 data.append("<div class='middle clearfix' style='margin: 0 10px'>" +
+//                     "<span class='handle'><i class='la  la-align-justify'></i></span>" +
+//                     "<input class='form-control selected-track' type='text' name='val[titles][]' autocomplete='off' required value=\""+newFileName+"\"/>" +
+//                     "<button class='btn ' onclick='return remove_selected_track(this)'><i class='fa  fa-close'></i></button>" +
+//                     "</div>" +
+//                     "<div style='padding:0 10px'><small class='ml-1'>"+file.name+" | <a href='' class='colored' onclick='return toggle_custom_url_field(this)'>"+strings.custom_url+"</a> "+addPrice+" </small></div>" +
+//                     "");
+//
+//                 var fakeUrl = buildLink('track/')
+//                 data.append("<div class='custom-url-container hide'><hr/>" +
+//                     "<div class='clearfix the-custom-url' style='padding: 0 10px;'>" +
+//                     "<input type='text' placeholder='"+strings.custom_url+"' name='val[customurl][]' class='form-control' />" +
+//                     "<small>"+fakeUrl+"xxx-xxx-xxx <strong>("+strings.alphanum_only+")</strong></small>" +
+//                     "</div>" +
+//                     "</div>");
+//                 if ($(".upload-pricing").length > 0) {
+//
+//                     $(data).append(pricingTemp);
+//                 }
+//                 $("#selected-songs").append(data);
+//
+//                 //lets submit to server
+//                 var f = new FormData();
+//                 f.append("number", i);
+//                 f.append("track_file", file);
+//                 var ajax = new XMLHttpRequest();
+//                 ajax.upload.uniquedata = i;
+//                 ajax.upload.addEventListener("progress", function(event)  {
+//                     var position = event.target.uniquedata;
+//                     var progress = $(".the-progress-" +position);
+//                     var percent = ((event.loaded / event.total) * 100).toFixed(0);
+//                     progress.find('.progress-bar').css('width', percent + '%');
+//                     progress.show();
+//
+//                 }, false);
+//                 ajax.addEventListener("load", function(event) {
+//                     // Parse the response
+//                     try {
+//                         var response = JSON.parse(event.target.responseText);
+//                         var container = $(".each-upload-track-"+response.number);
+//                         container.find('.track-file').val(response.audio);
+//                         container.find('.track-duration').val(response.duration);
+//                         container.find('.track-size').val(response.size);
+//                         var position = response.number;
+//                         hideItsProgress(position);
+//
+//                     } catch(error) {
+//                         var response = false;
+//                     }
+//
+//                     return true;
+//                 }, false);
+//                 ajax.addEventListener("error", errorHandler, false);
+//                 ajax.addEventListener("abort", abortHandler, false);
+//                 ajax.open("POST", buildLink("upload/track"));
+//                 ajax.send(f);
+//
+//
+//
+//
+//             }
+//
+//             if ($(input).hasClass('demo-audio')) {
+//                 $("#song--upload-form").data('not-ready', true);
+//                 i = $(input).data('container-id');
+//
+//                 var f = new FormData();
+//                 f.append("number", i);
+//                 f.append("track_file", file);
+//                 var ajax = new XMLHttpRequest();
+//                 ajax.upload.uniquedata = i;
+//                 ajax.upload.addEventListener("progress", function(event)  {
+//                     var position = event.target.uniquedata;
+//                     var progress = $(".the-progress-" +position);
+//                     var percent = ((event.loaded / event.total) * 100).toFixed(0);
+//                     progress.find('.progress-bar').css('width', percent + '%');
+//                     progress.show();
+//
+//                 }, false);
+//                 ajax.addEventListener("load", function(event) {
+//                     // Parse the response
+//                     try {
+//                         var response = JSON.parse(event.target.responseText);
+//                         var container = $(".each-upload-track-"+response.number);
+//                         container.find('.demo-file').val(response.audio);
+//                         container.find('.demo-duration').val(response.duration);
+//                         container.find('.water-mark-input-container .demo-audio').val('');
+//                         container.find('.water-mark-input-container .demo-audio').hide();
+//                         container.find('.water-mark-input-container label').hide();
+//                         container.find('.water-mark-input-container button').fadeIn();
+//                         container.find('.water-mark-input-container button').click(function() {
+//                             container.find('.water-mark-input-container button').hide();
+//                             container.find('.water-mark-input-container .demo-audio').fadeIn();
+//                             container.find('.water-mark-input-container label').fadeIn();
+//                             return false;
+//                         });
+//                         var position = response.number;
+//                         hideItsProgress(position);
+//
+//                     } catch(error) {
+//                         var response = false;
+//                     }
+//
+//                     return true;
+//                 }, false);
+//                 ajax.addEventListener("error", errorHandler, false);
+//                 ajax.addEventListener("abort", abortHandler, false);
+//                 ajax.open("POST", buildLink("upload/track"));
+//                 ajax.send(f);
+//
+//                 var dcontainer = $(".each-upload-track-"+i);
+//                 finalizeGenerateWave(files,file, i,dcontainer.find('.demo-wave'),dcontainer.find('.demo-wave2'));
+//             }
+//
+//         }
+//     }
+//     if (type === 'audio' && $(input).hasClass('main-audio')) {
+//         //$(input).val('');
+//         generateWaveForm(files);
+//     }
+// }
+//
+//
+// function errorHandler(event) {
+//     console.log(event);
+// }
+// function abortHandler(event) {
+//     console.log(event);
+// }
+//
+// function toggle_custom_url_field(t) {
+//     var parent = $(t).parent().parent().parent();
+//     var container = parent.find('.custom-url-container');
+//     if (container.css('display') == 'none') {
+//         container.fadeIn();
+//         container.find('input').focus();
+//     } else {
+//         container.hide();
+//     }
+//     return false;
+// }
+// function toggle_price_pane(t) {
+//     var parent = $(t).parent().parent().parent();
+//     var container = parent.find('.the-price-container');
+//     if (container.css('display') == 'none') {
+//         container.fadeIn();
+//         container.find('input').focus();
+//     } else {
+//         container.hide();
+//     }
+//     return false;
+// }
+//
+// function remove_selected_track(t) {
+//     var parent = $(t).parent().parent();
+//     parent.remove();
+//     //count the remain selected tracks if less than 1 show the choose file step
+//     var count = $('.selected-track').length;
+//     if (count < 1) {
+//         $('.uploader-main-form').hide();
+//         $('.uploader-form').fadeIn();
+//     }
+//     return false;
+// }
+// function process_upload_playlisttype(t) {
+//
+//     if ($(".upload-pricing").length > 0 && $(t).val() === '0') {
+//         //alert($(t).val());
+//         $('.upload-album-price').fadeIn();
+//     }
+// }
+//
+// function getTrackPicture(tags) {
+//     var image = tags.tags.picture;
+//     if (image) {
+//         var base64String = "";
+//         for (var i = 0; i < image.data.length; i++) {
+//             base64String += String.fromCharCode(image.data[i]);
+//         }
+//         var base64 = "data:image/jpeg;base64," +
+//             window.btoa(base64String);
+//         return base64;
+//
+//     } else {
+//         return '';
+//     }
+// }
+//
+// window.trackProcessing = false;
+// window.trackProcessed = 0;
+// function generateWaveForm(files) {
+//     $('.title-wave').each(function() {
+//         if(!window.trackProcessing && $(this).val() === '') {
+//             window.trackProcessing = true;
+//             var i = $(this).data('id');
+//             var nextWave = $(this).next();
+//             var thisWave = $(this);
+//             var avatarData = $(".avatar-data-"+i);
+//             var file = window.trackfiles[i].file;
+//             console.log(file)
+//
+//             jsmediatags.read(file, {
+//                 onSuccess: function(tag) {
+//                     picture = getTrackPicture(tag);
+//                     //console.log(picture);
+//                     //console.log(tag);
+//                     avatarData.val(picture);
+//                     //alert('am here');
+//                     if (i === 0 && $('#songAvatar-input').val() === '') {
+//                         $("#songAvatar").css('background-image', 'url('+picture+')');
+//                         $("#songAvatar").fadeIn();
+//                     }
+//                     finalizeGenerateWave(files, file, i,nextWave,thisWave);
+//                 },
+//                 onError: function(error) {
+//                     console.log(':(', error.type, error.info);
+//                     //we cannot read
+//                     finalizeGenerateWave(files,file, i,nextWave,thisWave);
+//                 }
+//             });
+//         }
+//     });
+// }
+//
+// function hideItsProgress(i) {
+//     var canHide = true;
+//
+//     if ($(".title-wave-"+i).val() === "") return false;
+//     if ($(".title-wave2-"+i).val() === "") return false;
+//
+//     if ($(".track-file-"+i).val() === "") return false;
+//     if (canHide) {
+//         var progress = $(".the-progress-" +i);
+//         progress.hide();
+//     }
+//
+// }
+// function finalizeGenerateWave(files,file, i,nextWave,thisWave, isDemo) {
+//     SoundCloudWaveform.generate(file, {
+//         canvas_width: 600,
+//         canvas_height: 45,
+//         bar_gap : 0,
+//         bar_width: 3,
+//         wave_color : ''+settingswaveColor+'',
+//         onComplete: function(png, pixels) {
+//
+//             thisWave.val(png);
+//             SoundCloudWaveform.generate(file, {
+//                 canvas_width: 600,
+//                 canvas_height: 45,
+//                 bar_gap : 0,
+//                 bar_width: 3,
+//                 wave_color : ''+settingswaveColored+'',
+//                 onComplete: function(png, pixels) {
+//                     nextWave.val(png);
+//                     window.trackProcessing = false;
+//
+//                     hideItsProgress(i);
+//                     if( isDemo === undefined) {
+//                         generateWaveForm(files);
+//
+//                         if (i === $('.title-wave').length - 1) {
+//                             $("#song--upload-form").data('not-ready', false);
+//                             $('.main-audio').val('');
+//                         }
+//                     } else {
+//                         $("#song--upload-form").data('not-ready', false);
+//                     }
+//                 }
+//             });
+//         }
+//     });
+// }
+// // Animation on Scroll
+// function initAnimation() {
+//     var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+//     if (isMobile == false) {
+//         $('*[data-animation]').addClass('animated');
+//         $('.animated').waypoint(function (down) {
+//             var elem = $(this);
+//             var animation = elem.data('animation');
+//             if (!elem.hasClass('visible')) {
+//                 var animationDelay = elem.data('animation-delay');
+//                 if (animationDelay) {
+//                     setTimeout(function () {
+//                         elem.addClass(animation + ' visible');
+//                     }, animationDelay);
+//                 } else {
+//                     elem.addClass(animation + ' visible');
+//                 }
+//             }
+//         }, {
+//             offset: $.waypoints('viewportHeight')
+//             //offset: 'bottom-in-view'
+//             //offset: '95%'
+//         });
+//     }
+// }
+//
+// function pageLoader() {
+//     NProgress.configure({ showSpinner: false });
+//     NProgress.start();
+// }
+// function pageLoaded() {
+//     NProgress.done();
+// }
+//
+// function buildLink(link, param) {
+//     var result = baseUrl;
+//     var append = "";
+//     if (param !== undefined) {
+//         for(i=0;i<param.length;i++) {
+//             append += (append.length > 0) ? '&'+param[i].key+'='+param[i].value : param[i].key+'='+param[i].value;
+//         }
+//     }
+//     if (permaLink === 1) {
+//         result += link;
+//         if(param !== undefined) {
+//             result += '?'+append;
+//         }
+//     } else {
+//         result += '?p='+link;
+//         if(param !== undefined) {
+//             result += '&'+ append;
+//         }
+//     }
+//     return result;
+// }
+//
+// window.autocollapsed = false;
+// function load_page(url, f) {
+//     window.onpopstate = function(e) {
+//         load_page(window.location, true);
+//     };
+//     //if (url == window.location && f == undefined) return false;
+//
+//     pageLoader();
+//     $.ajax({
+//         url: url,
+//         cache: false,
+//         type: 'GET',
+//         success: function(data) {
+//             if(data === 'login') {
+//                 changeAuthModal('.login-form');
+//                 pageLoaded();
+//             } else {
+//                 try {
+//                     data = jQuery.parseJSON(data);
+//                     if (data.type !== undefined) {
+//                         if (data.type == 'error') {
+//                             notify(data.message, data.type);
+//                             pageLoaded();
+//                             return false;
+//                         }
+//                     }
+//                     $('.videoplayer').css('visibility', 'hidden');
+//                     var content = data.content;
+//                     var container = data.container;
+//                     var title = data.title;
+//                     var collapsed = data.collapsed;
+//                     if ($('body').hasClass('side-collapsed')) {
+//                         //leave it like that
+//                         if (!collapsed) {
+//                             if (window.autocollapsed) {
+//                                 $('body').removeClass('side-collapsed')
+//                             }
+//                         }
+//                     } else {
+//                         if (collapsed) {
+//                             window.autocollapsed = true;
+//                             $('body').addClass('side-collapsed')
+//                         } else {
+//                             if (window.autocollapsed) {
+//                                 $('body').removeClass('side-collapsed')
+//                             }
+//                         }
+//                     }
+//                     $(container).html(content);
+//                     $('body').removeClass('modal-open');
+//                     $('.modal-backdrop').remove();
+//                     $("#side-menu").html(data.menu);
+//                     $("#side-menu li a").removeClass('active');
+//                     $("#side-menu li #"+data.active_menu+'-menu').addClass('active');
+//                     setTimeout(function() {
+//                         validatePlayingSong();//if any going
+//                     }, 200)
+//                 } catch(e) {
+//                     //window.open(url, '_self');
+//                 }
+//                 document.title = title;
+//                 window.history.pushState({}, 'New URL:' + url, url);
+//                 $(window).scrollTop(0);
+//                 reloadInit();
+//                 pageLoaded();
+//
+//                 $('body').click();
+//             }
+//
+//         },
+//         error: function() {
+//             pageLoaded();
+//             //login_required();
+//         }
+//     });
+//     return false;
+// }
+//
+// function scrollToBottom(container) {
+//     container.animate({scrollTop : container.prop("scrollHeight")}, 200)
+// }
+//
+// function reloadInit(paginate) {
+//     initAnimation();
+//
+//     try {
+//         $(".timeago").timeago();
+//     } catch(e) {
+//         //console.log(e);
+//     }
+//
+//     try {
+//
+//         $('.rich-editor').each(function() {
+//
+//             $('#' + $(this).attr('id') ).summernote({
+//                 placeholder: 'Hello bootstrap 4',
+//                 tabsize: 2,
+//                 height: 500
+//             });
+//         })
+//     } catch (e) {}
+//
+//     $('#selected-songs').sortable({
+//         items: '.each-upload-track',
+//         containment: 'window',
+//         appendTo: 'body',
+//         helper: 'clone',
+//         update: function(e, ui) {
+//         }
+//     });
+//
+//
+//     $('video').mediaelementplayer({
+//         pluginPath: 'https://cdnjs.com/libraries/mediaelement-plugins/',
+//         shimScriptAccess: 'always',
+//         //stretching: 'none',
+//         autoplay: true,
+//         features: ['playpause', 'current', 'progress', 'duration', 'speed', 'skipback', 'jumpforward', 'tracks', 'markers', 'volume', 'chromecast', 'contextmenu', 'flash', 'fullscreen'],
+//         success: function (media) {
+//             $('.videoplayer').css('visibility', 'visible');
+//             media.addEventListener('ended', function (e) {
+//
+//
+//             }, false);
+//
+//             media.addEventListener('playing', function (e) {
+//             });
+//             media.addEventListener('play', function (e) {
+//                 var videoid = $('.videoplayer').data('id');
+//                 $.ajax({
+//                     url : buildLink('video/play', [{key: 'id', value: videoid}])
+//                 });
+//             });
+//         },
+//     });
+//
+//
+//     if ($('body').hasClass('side-menu-open')) {
+//         $('body').removeClass('side-menu-open')
+//     }
+//
+//
+//     $('.datepicker').pickadate({
+//         format : 'd/m/yyyy'
+//     })
+//     tippy('[data-toggle="tooltip"]',{
+//         animation: 'shift-toward',
+//         arrow: true
+//     });
+//
+//     tippy('.mtitle',{
+//         animation: 'shift-toward',
+//         arrow: true
+//     });
+//
+//     tippy('.mtitle-light',{
+//         animation: 'shift-toward',
+//         arrow: true,
+//         interactive : true,
+//         theme : 'light',
+//         allowTitleHTML: true,
+//     });
+//     const template = document.querySelector('#popover-default')
+//     const initialText = (template !== null) ? template.textContent : '';
+//     const tip = tippy('.user-link', {
+//         allowTitleHTML: true,
+//         arrow : true,
+//         maxWidth: '200px',
+//         theme: 'light',
+//         html : '#popover-default',
+//         interactive : true,
+//         onShow(instance) {
+//             var userid = this._reference.getAttribute('data-id');
+//             const content = this.querySelector('.tippy-content')
+//
+//             if (tip.loading || content.innerHTML !== initialText) return
+//
+//             tip.loading = true;
+//
+//             $.ajax({
+//                 url : buildLink('user/card', [{key: 'id', value: userid}]),
+//                 success : function(r) {
+//                     content.innerHTML = r;
+//                     tip.loading = false
+//                 }
+//             })
+//         },
+//         popperOptions: {
+//             modifiers: {
+//                 preventOverflow: {
+//                     enabled: false
+//                 },
+//                 hide: {
+//                     enabled: false
+//                 }
+//             }
+//         }
+//     })
+//
+//     $('.mtooltip').tooltip({
+//         trigger: 'hover'
+//     });
+//     $('.mtooltip').on('click', function() {
+//         $(this).tooltip('hide')
+//     });
+//
+//     $('.cp').colorpicker();
+//
+//     if ($('.chats-container').length > 0) {
+//         if(paginate === undefined) {
+//             setTimeout(function() {
+//                 scrollToBottom($('.chats-container'))
+//             }, 100);
+//         }
+//         $('.chats-container').scroll(function() {
+//             if ($(this).scrollTop() == 0 ) {
+//                 globalPaginate('chats-container');
+//             }
+//         })
+//     };
+//
+//     if($('#charts-stats').length > 0) {
+//         var time = $('#charts-stats').data('time');
+//         var id = $('#charts-stats').data('id')
+//         $.ajax({
+//             url: buildLink('load/charts', [{key:'time',value:time},{key: 'id', value: id}]),
+//             success: function(data) {
+//                 var json = jQuery.parseJSON(data);
+//                 $.each(json.charts, function(i, c) {
+//                     var yD = [];
+//                     xKey = 'y';
+//                     yKeys = [];
+//                     labels = [];
+//                     //alert(c);
+//
+//                     $.each(c, function(n, nC) {
+//                         labels.push(nC.name);
+//                         yKeys.push(n);
+//                         var x = 0;
+//                         $.each(nC.points, function($name, $number) {
+//                             var o = (yD[x] != undefined) ? yD[x] : {y: $name};
+//                             if(yD[x] != undefined) {
+//                                 yD[x][n] = $number;
+//                             } else {
+//                                 o[n] = $number;
+//                                 yD.push(o);
+//                             }
+//                             x++;
+//                         });
+//
+//                     });
+//                     //alert(yD);
+//
+//                     var divId = 'chat-' + i;
+//                     var div = $("<div id='" + divId + "' style='width: 100%;height: 300px'></div> ");
+//                     $("#charts-stats ").find('img').hide();
+//                     $("#charts-stats").append(div);
+//                     var chartType = $("#charts-stats").data('type');
+//                     if (chartType === 'bar') {
+//                         Morris.Bar({
+//                             element: divId,
+//                             data: yD,
+//                             xkey: xKey,
+//                             ykeys: yKeys,
+//                             labels: labels,
+//                             pointSuperimposed: false,
+//                             dataLabels: false,
+//                             parseTime: false
+//                         });
+//                     } else if(chartType === 'line') {
+//                         Morris.Line({
+//                             element: divId,
+//                             data: yD,
+//                             xkey: xKey,
+//                             ykeys: yKeys,
+//                             labels: labels,
+//                             pointSuperimposed: false,
+//                             dataLabels: false,
+//                             parseTime: false
+//                         });
+//                     } else {
+//                         Morris.Area({
+//                             element: divId,
+//                             data: yD,
+//                             xkey: xKey,
+//                             ykeys: yKeys,
+//                             labels: labels,
+//                             pointSuperimposed: false,
+//                             dataLabels: false,
+//                             parseTime: false
+//                         });
+//                     }
+//
+//                 });
+//             }
+//         })
+//     }
+//
+//     $('.track-list').each(function() {
+//         ///return false;
+//         if($(this).data('loaded') === undefined) {
+//             var type = $(this).data('type');
+//             var typeId= $(this).data('type-id');
+//             var offset = $(this).data('offset');
+//             var limit = ($(this).data('limit') === undefined) ? 0 : $(this).data('limit');
+//             var viewType = ($(this).data('view') === undefined) ? 'list' : $(this).data('view');
+//             var container = $(this);
+//             $.ajax({
+//                 url : buildLink('track/load', [{key: 'limit',value:limit},{key: 'type',value:type},{key: 'type_id',value:typeId},{key: 'offset',value:offset},{key:'view',value:viewType}]),
+//                 success : function(result) {
+//                     container.find('.feed-placeholder').remove();
+//                     var r = $("<div style='display: none;'></div>");
+//                     r.html(result);
+//                     container.append(r);
+//                     container.data('loaded', true);
+//                     r.fadeIn();
+//                     setTimeout(function() {
+//                         reloadInit();
+//
+//                     },300);
+//                     setTimeout(function() {
+//                         validatePlayingSong();//if any goin
+//                         recalculateWaveImages();
+//                     }, 200)
+//
+//                 }
+//             })
+//         }
+//     });
+//
+//     $('.comments-container').each(function() {
+//         if($(this).data('loaded') === undefined) {
+//             var type = $(this).data('type');
+//             var typeId= $(this).data('type-id');
+//             var offset = $(this).data('offset');
+//             var container = $(this);
+//             $.ajax({
+//                 url : buildLink('comment/load', [{key: 'type',value:type},{key: 'type_id',value:typeId},{key: 'offset',value:offset}]),
+//                 success : function(result) {
+//                     var r = $("<div style='display: none;'></div>");
+//                     r.html(result);
+//                     container.append(r);
+//                     container.data('loaded', true);
+//                     r.fadeIn();
+//                     setTimeout(function() {
+//                         reloadInit();
+//                     },300)
+//
+//                 }
+//             })
+//         }
+//     });
+//     prepare_track_time_comments();
+//     if ($(window).width() > 1000) {
+//         try {
+//             $('#page-container .fixed-left-content').stick_in_parent({parent: '#page-container'});
+//         } catch(e) {
+//         }
+//     }
+//
+//     $('.select-input').each(function() {
+//         if($(this).data('ui-select') && !$(this).hasClass('selectized')) {
+//
+//             $(this).selectize({
+//                 create: true,
+//                 sortField: 'text'
+//             });
+//         }
+//     });
+//
+//     if ($('#track-header').length > 0 && $('#track-header').data('bg-set') === false) {
+//         Vibrant.from($('#track-header').data('image')).getPalette().then(function(palette) {
+//             //console.log(palette);
+//             //alert('linear-gradient(135deg, rgb('+palette.LightMuted._rgb+') 0%, rgb('+palette.Vibrant._rgb+') 100%);')
+//             $('#track-header .bg-container').css('background', 'linear-gradient(to right, rgb('+palette.DarkVibrant._rgb+') ,rgb('+palette.Muted._rgb+'), rgb('+palette.Vibrant._rgb+')) ')
+//         });
+//     }
+//
+//     $('.input-tags').each(function() {
+//         var data = "search/tags";
+//         if ($(this).data('url') !== undefined) data = $(this).data('url');
+//         window.globalSelect = $(this).selectize({
+//             plugins: ['remove_button','drag_drop'],
+//             delimiter: ',',
+//             persist: false,
+//             options: [],
+//             preload: true,
+//             closeAfterSelect: true,
+//             create: function(input) {
+//                 return {
+//                     value: input,
+//                     text: input
+//                 }
+//             },
+//             load: function(query, callback) {
+//                 if (!query.length) return callback();
+//                 $.ajax({
+//                     url: buildLink(data, [{key: 'term', value: encodeURIComponent(query)}]) ,
+//                     type: 'GET',
+//                     error: function() {
+//                         callback();
+//                     },
+//                     success: function(res) {
+//                         res = jQuery.parseJSON(res);
+//                         callback(res);
+//                     }
+//                 });
+//             }
+//         });
+//     });
+//
+//
+//
+//     $('.input-tags-fetch').each(function() {
+//         var data = "search/tags";
+//         if ($(this).hasClass('selectized')) return false;
+//         if ($(this).data('url') !== undefined) data = $(this).data('url');
+//         $(this).selectize({
+//             plugins: ['remove_button','drag_drop'],
+//             delimiter: ',',
+//             persist: false,
+//             options: [],
+//             preload: true,
+//             closeAfterSelect: true,
+//             load: function(query, callback) {
+//                 if (!query.length) return callback();
+//                 $.ajax({
+//                     url: buildLink(data, [{key: 'term', value: encodeURIComponent(query)}]) ,
+//                     type: 'GET',
+//                     error: function() {
+//                         callback();
+//                     },
+//                     success: function(res) {
+//                         res = jQuery.parseJSON(res);
+//                         callback(res);
+//                     }
+//                 });
+//             }
+//         });
+//     });
+//
+//
+//
+//     $('.slider').each(function() {
+//         var id = $(this).find('.swiper-container').attr('id');
+//         var next = $(this).find('.scroll-right').attr('id');
+//         var prev = $(this).find('.scroll-left').attr('id');
+//         var swiper = new Swiper('#'+id, {
+//             slidesPerView: 2,
+//             spaceBetween: 1,
+//             loop: false,
+//             speed: 1500,
+//             navigation: {
+//                 nextEl: '#'+next,
+//                 prevEl: '#'+prev,
+//             },
+//             breakpoints: {
+//                 2560: {
+//                     slidesPerView: 4,
+//                     spaceBetween: 10,
+//                 },
+//                 1800: {
+//                     slidesPerView: 4,
+//                     spaceBetween: 10,
+//                 },
+//                 1400: {
+//                     slidesPerView: 3,
+//                     spaceBetween: 10,
+//                 },
+//                 992: {
+//                     slidesPerView: 2,
+//                     spaceBetween: 10,
+//                 },
+//                 768: {
+//                     slidesPerView: 2,
+//                     spaceBetween: 10,
+//                 },
+//                 640: {
+//                     slidesPerView: 3,
+//                     spaceBetween: 15,
+//                 },
+//                 480: {
+//                     slidesPerView: 1,
+//                 },
+//                 375: {
+//                     slidesPerView: 1,
+//                     spaceBetween: 0,
+//                 }
+//             },
+//         });
+//     });
+//
+//     $('.full-slider').each(function() {
+//         var id = $(this).find('.swiper-container').attr('id');
+//         var next = $(this).find('.scroll-right').attr('id');
+//         var prev = $(this).find('.scroll-left').attr('id');
+//         var swiper = new Swiper('#'+id, {
+//             slidesPerView: 2,
+//             spaceBetween: 5,
+//             loop: false,
+//             speed: 1500,
+//             navigation: {
+//                 nextEl: '#'+next,
+//                 prevEl: '#'+prev,
+//             },
+//             breakpoints: {
+//                 4560 : {
+//                     slidesPerView: 14,
+//                 },
+//                 4200 : {
+//                     slidesPerView: 13,
+//                 },
+//                 3900 : {
+//                     slidesPerView: 12,
+//                 },
+//                 3560 : {
+//                     slidesPerView: 11,
+//                 },
+//                 3200 : {
+//                     slidesPerView: 10,
+//                 },
+//                 2900 : {
+//                     slidesPerView: 9,
+//                 },
+//                 2560: {
+//                     slidesPerView: 8,
+//                 },
+//                 2200 : {
+//                     slidesPerView: 7,
+//                 },
+//                 1900: {
+//                     slidesPerView: 5,
+//                 },
+//                 1600 : {
+//                     slidesPerView: 5,
+//                 },
+//                 1400: {
+//                     slidesPerView: 4,
+//                 },
+//                 992: {
+//                     slidesPerView: 4,
+//                     spaceBetween: 10,
+//                 },
+//                 768: {
+//                     slidesPerView: 3,
+//                     spaceBetween: 10,
+//                 },
+//                 640: {
+//                     slidesPerView: 2,
+//                     spaceBetween: 15,
+//                 },
+//                 480: {
+//                     slidesPerView: 2,
+//                 },
+//                 375: {
+//                     slidesPerView: 1,
+//                     spaceBetween: 0,
+//                 }
+//             },
+//         });
+//     })
+//
+//     $('.side-slider').each(function() {
+//         var id = $(this).find('.swiper-container').attr('id');
+//         var next = $(this).find('.scroll-right').attr('id');
+//         var prev = $(this).find('.scroll-left').attr('id');
+//         var swiper = new Swiper('#'+id, {
+//             slidesPerView: 2,
+//             spaceBetween: 1,
+//             loop: false,
+//             autoplay: true,
+//             speed: 1500,
+//             navigation: {
+//                 nextEl: '#'+next,
+//                 prevEl: '#'+prev,
+//             },
+//             breakpoints: {
+//                 2560: {
+//                     slidesPerView: 2,
+//                     spaceBetween: 10,
+//                 },
+//                 1800: {
+//                     slidesPerView: 2,
+//                     spaceBetween: 10,
+//                 },
+//                 1400: {
+//                     slidesPerView: 2,
+//                     spaceBetween: 10,
+//                 },
+//                 992: {
+//                     slidesPerView: 2,
+//                     spaceBetween: 10,
+//                 },
+//                 768: {
+//                     slidesPerView: 2,
+//                     spaceBetween: 10,
+//                 },
+//                 640: {
+//                     slidesPerView: 2,
+//                     spaceBetween: 10,
+//                 },
+//                 480: {
+//                     slidesPerView: 2,
+//                     spaceBetween: 10,
+//                 },
+//                 375: {
+//                     slidesPerView: 1,
+//                     spaceBetween: 10,
+//                 }
+//             },
+//         });
+//     })
+//     $("#music-player").jPlayer("option", "cssSelectorAncestor", '.sound-player');
+// }
+//
+// window.currentPlaying  = 0;
+// window.currentPlayingType = '';
+// window.currentPlayingTypeId = '';
+// window.repeatSong = false;
+// window.currentPlayingObject = null;
+//
+// function loadPlayer(type, typeId) {
+//     $('.sound-playlist-content').data('offset', 0);
+//     $('.sound-playlist-content').data('type', type);
+//     $('.sound-playlist-content').data('typeid', typeId);
+//     $.ajax({
+//         url : buildLink('track/load', [{key: 'type', value:type},
+//             {key:'type_id', value:typeId},
+//             {key:'view', value:'small-inline'},
+//             {key: 'offset', value: 0}]),
+//         success : function(r) {
+//             $('.sound-playlist-content .content').html(r);
+//
+//             validatePlayingSong();
+//             if (window.currentPlaying !== 0) {
+//                 $('.sound-playlist-content .each-inline-track').removeClass('track-hover-display-container');
+//                 $('.sound-playlist-content .each-inline-track').addClass('track-hover-display-container');
+//                 $('.sound-playlist-content').find('.each-track-'+window.currentPlaying).addClass('active-track-mini-inline current-seek');
+//                 $('.sound-playlist-content').find('.each-track-'+window.currentPlaying +" .play-controls").html($("#seek-template").html());
+//                 $('.sound-playlist-content').find('.each-track-'+window.currentPlaying).removeClass('track-hover-display-container');
+//                 $("#music-player").jPlayer("option", "cssSelectorAncestor", '.sound-player');
+//             }
+//         }
+//     })
+// }
+// function toogleSoundPlaylist() {
+//     if ($("#sound-playlists").css('display') === 'none') {
+//         $("#sound-playlists").fadeIn();
+//         if ($('.sound-playlist-content .content').html() === '') {
+//             //lets query the feed list to play from
+//             loadPlayer('feed', '')
+//         }
+//     } else {
+//         $("#sound-playlists").hide();
+//     }
+//     return false;
+// }
+// window.playStopPercent = 0;
+// window.playBuyType = null;
+// window.playBuyTrack = null;
+// function playSong(b) {
+//     var button = $(b);
+//
+//     window.currentPlayingObject = b;
+//     trackId = button.data('id');
+//
+//
+//     if (!window.repeatSong && (trackId === window.currentPlaying && typeId === window.currentPlayingTypeId)) return false;
+//     window.showTimeComments = [];
+//     type = button.data('type');
+//     typeId = button.data('typeid');
+//     owner = button.data('owner');
+//     ownerLink = button.data('owner-link');
+//     art = button.data('art');
+//     title = button.data('title');
+//     $.ajax({
+//         url : buildLink('tr/a/' + trackId + '/details'),
+//         success : function(r) {
+//             var json = jQuery.parseJSON(r);
+//
+//             trackUrl = json.url;
+//             link = json.link;
+//             if (json.limit !== 0) {
+//                 //@TODO limit playing by certain seconds for default
+//                 if (trackUrl === '') {
+//                     //that means the user must by
+//                     return buy_item(json.buyType, json.buyTrack);
+//                 } else {
+//                     if (json.percentage > 0) {
+//                         window.playStopPercent = json.percentage;
+//                         window.playBuyTrack = json.buyTrack;
+//                         window.playBuyType = json.buyType;
+//                     } else {
+//                         window.playStopPercent = 0;
+//                     }
+//                 }
+//             } else {
+//                 window.playStopPercent = 0;
+//             }
+//             window.playingWave = json.wave;
+//             window.playingWaveColored = json.wave_colored;
+//
+//             window.currentPlaying = trackId;
+//             window.currentPlayingType = type;
+//             window.currentPlayingTypeId = typeId;
+//             loadPlayer(type, typeId);
+//             validatePlayingSong();
+//
+//             if (type === 'playlist') {
+//                 if ($('.playlist-url-'+typeId).length > 0) link = $('.playlist-url-'+typeId).data('link');
+//             }
+//             $.ajax({
+//                 url : buildLink('track/set/views', [{key : 'track', value: trackId}])
+//             });
+//             $('.sound-container').fadeIn();
+//             $('.sound-container .hide').removeClass('hide');
+//             $('.sound-container .detail #title-link').html(title);
+//             $('.sound-container .detail #title-link').attr('href', link);
+//             $('.sound-container .detail #owner-link').html(owner);
+//             $('.sound-container .detail #owner-link').attr('href', ownerLink);
+//             $('.sound-container .detail .img').css("background-image", "url("+art+")");
+//             $("#music-player").jPlayer("option", "cssSelectorAncestor", '.sound-player');
+//             $("#music-player").jPlayer("setMedia",{mp3:trackUrl}).jPlayer("play");
+//
+//             if ($('.playlist-profile').length > 0) {
+//                 Vibrant.from(art).getPalette().then(function(palette) {
+//                     $('#track-header .bg-container').css('background', 'linear-gradient(to right, rgb('+palette.DarkVibrant._rgb+') ,rgb('+palette.Muted._rgb+'), rgb('+palette.Vibrant._rgb+')) ')
+//                 });
+//
+//                 $('.playlist-profile .track-image').css('background-image', 'url('+art+')');
+//             } else if (window.currentPlayingType === 'playlist' && $(".playlist-list-art-" + window.currentPlayingTypeId).length > 0) {
+//                 $(".playlist-list-art-" + window.currentPlayingTypeId + ' .art').css('background-image', 'url('+art+')');
+//             }
+//         }
+//     })
+//
+//     return false;
+// }
+//
+// function validatePlayingSong() {
+//
+//     if (window.currentPlaying !== 0) {
+//         var trackId = window.currentPlaying;
+//
+//         var button = $(".track-play-button-" + window.currentPlaying);
+//         if (button.length > 0) {
+//             wave = window.playingWave;
+//
+//             waveColored = window.playingWaveColored;
+//             $('.current-seek').find('.jp-audio').remove();
+//             $('.current-seek').find('.current-seek-wave').remove();
+//             $('.current-seek').removeClass('current-seek');
+//
+//
+//             if (window.currentPlayingType === 'playlist') {
+//                 //alert(".playlist-container-"+window.currentPlayingTypeId)
+//                 $(".playlist-container-"+window.currentPlayingTypeId).addClass('current-seek');
+//                 $('.current-seek  .play-controls').append($("#seek-template").html());
+//                 $(".playlist-tracks-list-"+window.currentPlayingTypeId+ " .track-"+trackId).addClass("current-seek");
+//                 //consider the playlist container
+//                 //$("#sound-playlists .track-"+trackId).addClass("current-seek");
+//                 //we need to remove duplicate
+//                 $(".playlist-tracks-list-"+window.currentPlayingTypeId+ " .track .play-controls").html("");
+//                 $(".playlist-tracks-list-"+window.currentPlayingTypeId+ " .each-track-"+window.currentPlaying+" .play-controls").html($("#seek-template").html());
+//
+//             } else {
+//                 $(".track-"+trackId).addClass("current-seek");
+//                 $('.current-seek  .play-controls').append($("#seek-template").html());
+//             }
+//
+//
+//             var height = $('.track-'+trackId + ' .detail').height() + 5;
+//
+//             $('.track-'+trackId+' .jp-play , .track-'+trackId+' .jp-pause').css({ 'top' : '-' + height + 'px' });
+//
+//             //replace the waveform
+//             // $(".current-seek .jp-progress").css('background-image', 'url('+wave+')');
+//             $(".current-seek .jp-progress").prepend("<img src='"+wave+"' class='current-seek-wave wave-image'/>");
+//             $(".current-seek .jp-progress .jp-seek-bar .jp-play-bar").append("<img src='"+waveColored+"' class='current-seek-wave wave-image'/>")
+//             $("#music-player").jPlayer("option", "cssSelectorAncestor", '.sound-player');
+//             recalculateWaveImages()
+//         }
+//
+//     }
+// }
+//
+// function playprev() {
+//     if (window.currentPlaying !== 0) {
+//         var prevTrack = $('#sound-playlists .track-' + window.currentPlaying).prev();
+//         if (prevTrack.hasClass('each-inline-track')) {
+//             playSong(prevTrack.find('.play-button'))
+//         }
+//     }
+//     return false;
+// }
+//
+// function playNext() {
+//     if (window.currentPlaying !== 0) {
+//         var nextTrack = $('#sound-playlists .track-' + window.currentPlaying).next();
+//         if (nextTrack.hasClass('each-inline-track')) {
+//             playSong(nextTrack.find('.play-button'))
+//         } else {
+//             paginateSoundPlaylist(true)
+//         }
+//     }
+//     return false;
+// }
+//
+// function repeatSongTrigger(t) {
+//     if (window.repeatSong === true) {
+//         window.repeatSong = false;
+//         $(t).find('i').removeClass('colored')
+//     } else {
+//         window.repeatSong = true;
+//         $(t).find('i').addClass('colored')
+//     }
+//     return false;
+// }
+//
+// window.trackPaginating = false;
+// function paginateTracks() {
+//     if ($('.track-list').data('loaded') === undefined) return false;
+//     if ( $('.track-list').data('no-paginate') === undefined && $('.track-list').length > 0 && window.trackPaginating === false && $('.track-list').data('ended') === undefined) {
+//         window.trackPaginating = true;
+//         var offset = $('.track-list').data('offset');
+//         var typeId = $('.track-list').data('type-id');
+//         var type = $('.track-list').data('type');
+//         var viewType = ($('.track-list').data('view') === undefined) ? 'list' : $('.track-list').data('view');
+//         $('.track-list').append('<div class="ms_bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>');
+//         $.ajax({
+//             url : buildLink('track/paginate', [
+//                 {key: 'offset', value: offset},
+//                 {key: 'view', value: viewType},
+//                 {key: 'type_id',value:typeId},
+//                 {key:'type',value:type}]),
+//             success : function(r) {
+//                 window.trackPaginating = false;
+//                 try{
+//                     var result = jQuery.parseJSON(r);
+//                     $('.track-list').data('offset', result.offset);
+//                     $('.track-list').find('.ms_bars').remove();
+//                     r = $("<div style='display: none;'></div>");
+//                     r.html(result.content);
+//                     $('.track-list').append(r);
+//                     r.fadeIn();
+//                     if (result.content === '') {
+//                         $('.track-list').data('ended', true);
+//                     }
+//                     setTimeout(function() {
+//                         reloadInit();
+//                     },300);
+//                     setTimeout(function() {
+//                         validatePlayingSong();//if any goin
+//                     }, 300);
+//                 } catch(e) {
+//                     $('.track-list').data('ended', true);
+//                     $('.track-list').find('.ms_bars').remove();
+//                 }
+//             }
+//         })
+//     }
+// }
+//
+// function paginateSoundPlaylist(doNext) {
+//     if (window.trackPaginating === false && $('.sound-playlist-content').data('ended') === undefined) {
+//         window.trackPaginating = true;
+//         var offset = $('.sound-playlist-content').data('offset');
+//         var typeId = $('.sound-playlist-content').data('typeid');
+//         var type = $('.sound-playlist-content').data('type');
+//         var viewType = 'small-inline';
+//         $('.sound-playlist-content .content').append('<div class="ms_bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>');
+//         $.ajax({
+//             url : buildLink('track/paginate', [
+//                 {key: 'offset', value: offset},
+//                 {key: 'view', value: viewType},
+//                 {key: 'type_id',value:typeId},
+//                 {key:'type',value:type}]),
+//             success : function(r) {
+//                 window.trackPaginating = false;
+//                 try{
+//                     var result = jQuery.parseJSON(r);
+//                     $('.sound-playlist-content').data('offset', result.offset);
+//                     $('.sound-playlist-content .content').find('.ms_bars').remove();
+//                     r = $("<div style='display: none;'></div>");
+//                     r.html(result.content);
+//                     $('.sound-playlist-content .content').append(r);
+//                     r.fadeIn();
+//
+//                     if (doNext !== undefined && result.content !== '') {
+//                         playNext();
+//                     }
+//
+//                     if (result.content === '') {
+//                         $('.sound-playlist-content').data('ended', true);
+//                     }
+//                     setTimeout(function() {
+//                         reloadInit();
+//                     },300);
+//                     setTimeout(function() {
+//                         validatePlayingSong();//if any goin
+//                     }, 300)
+//                 } catch(e) {
+//                     $('.sound-playlist-content').data('ended', true);
+//                     $('.sound-playlist-content .content').find('.ms_bars').remove();
+//                 }
+//             }
+//         })
+//     }
+// }
+//
+//
+// function ajaxAction(url) {
+//     pageLoader();
+//     $.ajax({
+//         url : url,
+//         success : function(d) {
+//             pageLoaded();
+//             if (d === 'login') {
+//                 changeAuthModal('.login-form');
+//             }
+//             try{
+//                 var r = jQuery.parseJSON(d);
+//                 $('body').click()//to remove unwanted dropdowns
+//                 var m = r.message;var t = r.type;var v = r.value;var c = r.content,modal = r.modal,table=r.table;
+//                 if (t === 'url') {
+//                     load_page(v);
+//                 } else if(t === 'function') {
+//                     if (v !== undefined && v !== '') eval(v)(c);
+//                 } else if(t === 'modal-function') {
+//                     $(modal).modal("hide");
+//                     if (v !== undefined && v !== '') eval(v)(c);
+//                 } else if(t === 'modal-url') {
+//                     $(c).modal("hide");
+//                     load_page(v)
+//                 } else if(t === 'reload') {
+//                     load_page(window.location.href);
+//                 } else if(t === 'reload-modal') {
+//                     $(c).modal("hide");
+//                     load_page(window.location.href);
+//                 }
+//                 if (t === 'error') {
+//                     notify(m, 'error');
+//                 } else {
+//                     if (m !== '' ) notify(m, 'success');
+//                 }
+//             } catch (e) {
+//             }
+//         }
+//     })
+// }
+//
+// window.globalPaginating = false
+// function globalPaginate(container) {
+//     var btnId = '#'+container + '-loadmore-button';
+//     var loadMoreContainer = '#'+container + '-load-more-container';
+//     var container = $("#"+container);
+//     if (container.length > 0 && window.globalPaginating === false && container.data('ended') === undefined) {
+//
+//         window.globalPaginating = true;
+//         var offset = container.data('offset');
+//         var data = container.data('param');
+//         //alert(buildLink(container.data('paginate-url'), [{key: 'offset', value: offset},{key: 'data',value:data}]))
+//         showFormLoader(btnId);
+//         $.ajax({
+//             type : 'POST',
+//             data : {data : data},
+//             url : buildLink(container.data('paginate-url'), [{key: 'offset', value: offset}]),
+//             success : function(r) {
+//                 window.globalPaginating = false;
+//                 hideFormLoader(btnId);
+//                 //alert(r);
+//                 try{
+//                     var result = jQuery.parseJSON(r);
+//                     container.data('offset', result.offset);
+//                     r = $("<div style='display: none;'></div>");
+//                     r.html(result.content);
+//                     if (container.data('prepend') === undefined) {
+//                         var newLoadMore = $(loadMoreContainer).clone();
+//                         $(loadMoreContainer).remove();
+//                         container.append(r);
+//                         container.append(newLoadMore)
+//                     } else {
+//
+//                         container.prepend(r);
+//
+//                     }
+//                     r.fadeIn();
+//                     if (result.content === '') {
+//                         container.data('ended', true);
+//                         $(btnId).hide();
+//                     }
+//                     setTimeout(function() {
+//                         reloadInit(true);
+//                     },300);
+//                     setTimeout(function() {
+//                         validatePlayingSong();//if any goin
+//                     }, 300);
+//                 } catch(e) {
+//                     container.data('ended', true);
+//                     $(btnId).hide();
+//                 }
+//             }
+//         })
+//     }
+// }
+//
+// window.showTimeComments = [];
+// $(function() {
+//
+//     reloadInit();
+//     $(document).on("click", ".confirm", function() {
+//         return confirm($(this).attr('href'), $(this).data('message'), $(this).data('ajax-action'));
+//     });
+//     recalculateWaveImages();
+//     $(window).scroll(function() {
+//         if($(window).scrollTop() + $(window).height() == $(document).height()) {
+//             paginateTracks();
+//
+//             if ($(".main-loadmore-container").length > 0) {
+//                 globalPaginate($(".main-loadmore-container").data('container'));
+//             }
+//         }
+//     });
+//
+//     $('.sound-playlist-content').scroll(function() {
+//         if($(this).find('.content').height() - $(this).scrollTop() <= $('.sound-playlist-content').height()) {
+//             paginateSoundPlaylist();
+//         }
+//     })
+//
+//     $(document).on('submit','.general-form',function() {
+//         var url = $(this).attr('action');
+//         var f = $(this);
+//         var btId = f.find('.ladda-button').prop('id');
+//         var btnName = "#" + f.find('.ladda-button').prop('id');
+//         if ($("#selected-songs").length > 0) {
+//             var canContinue = true;
+//             $('.track-file').each(function() {
+//                 if ($(this).val() === '') canContinue = false;
+//             })
+//
+//             $('#selected-songs .progress').each(function() {
+//                 //alert($(this).css('display'));
+//                 if ($(this).css('display') !== 'none') canContinue = false;
+//             })
+//             if (!canContinue) return false;
+//         }
+//         if (f.data('not-ready') !== undefined && f.data('not-ready')) return false;
+//         if (btId !== undefined && btId !== '') showFormLoader(btnName);
+//
+//
+//
+//         var progress = null;
+//         if (f.data('upload')) {
+//             progress = $(f.data('upload'));
+//             progressPercent = 0;
+//         }
+//         f.ajaxSubmit({
+//             url : url,
+//             uploadProgress: function(event, position, total, percentComplete) {
+//                 var percentVal = percentComplete;
+//
+//                 if (progress !== null) {
+//                     progress.find('.progress-bar').css('width', percentVal + '%');
+//                     progress.find('.progress-bar').html(percentVal + '%');
+//                     progress.show();
+//                 }
+//             },
+//             success : function(d) {
+//                 try{
+//                     var r = jQuery.parseJSON(d);
+//                     $('body').click()//to remove unwanted dropdowns
+//                     var m = r.message;var t = r.type;var v = r.value;var c = r.content,modal = r.modal,table=r.table;
+//                     if (t === 'url') {
+//                         load_page(v);
+//
+//                     } else if(t === 'function') {
+//                         if (v != undefined && v != '') eval(v)(c);
+//                     } else if(t === 'modal-function') {
+//                         $(modal).modal("hide");
+//                         if (v !== undefined && v !== '') eval(v)(c);
+//                     } else if(t === 'modal-url') {
+//                         $(c).modal("hide");
+//                         load_page(v)
+//                     } else if(t === 'reload') {
+//                         load_page(window.location.href);
+//                     } else if(t === 'reload-modal') {
+//                         $(c).modal("hide");
+//                         load_page(window.location.href);
+//                     } else if(t === 'normal-url') {
+//                         $(c).modal("hide");
+//                         window.location.href=v;
+//                     }
+//                     if (t === 'error' || t === 'error-function') {
+//                         notify(m, 'error');
+//                         if (v != undefined && v != '') eval(v)(c);
+//                     } else {
+//                         if (m !== '' ) notify(m, 'success');
+//                     }
+//                     if (btId !== undefined  && btId !== '') hideFormLoader(btnName);
+//                 } catch (e) {
+//                     if (btId !== undefined  && btId !== '') hideFormLoader(btnName);
+//                 }
+//
+//                 if (progress !== null) {
+//                     progress.hide();
+//                     progress.find('.progress-bar').css('width', '0%');
+//                     progress.find('.progress-bar').html('0%');
+//                 }
+//             }
+//         });
+//         return false;
+//     })
+//
+//     $(document).on('click', '[data-ajax=true]', function() {
+//         load_page($(this).attr('href'));
+//         return false;
+//     });
+//
+//
+//
+//     $("#music-player").jPlayer({
+//         cssSelectorAncestor: '.sound-player',
+//         play: function() {
+//
+//
+//         },
+//         ended: function () {
+//             if (window.repeatSong) {
+//                 playSong(window.currentPlayingObject);
+//             } else {
+//                 if (playloop) playNext();
+//             }
+//         },
+//         timeupdate : function(event) {
+//             //console.log(event.jPlayer.status.currentPercentRelative);
+//             //console.log();
+//
+//             var percent = Math.round(event.jPlayer.status.currentPercentRelative);
+//             var user = ".time-comment-" + percent + '-' + window.currentPlaying;
+//             //console.log(event.jPlayer.status.currentPercentRelative);
+//             //console.log(jQuery.inArray(percent, window.showTimeComments));
+//             if ($(user).length > 0 && jQuery.inArray(percent, window.showTimeComments) === -1) {
+//                 $('body').click();
+//                 var user = document.querySelector(user);
+//                 window.showTimeComments.push(percent);
+//                 var ttt = user._tippy;
+//                 ttt.show();
+//                 setTimeout(function() {
+//                     ttt.hide();
+//                 }, 4500);
+//             } else {
+//
+//             }
+//             if (window.playStopPercent > 0) {
+//                 if(event.jPlayer.status.currentPercentRelative > window.playStopPercent) {
+//                     $(this).jPlayer('stop');
+//                     //show the buy dialog to prevent confusion
+//                     buy_item(window.playBuyType, window.playBuyTrack);
+//                 }
+//             }
+//         },
+//         swfPath: baseUrl + 'assets/js/',
+//         supplied: "mp3,m4a",
+//         wmode: "window",
+//         volume: defaultVolume / 100,
+//         smoothPlayBar: true,
+//         keyEnabled: true
+//     });
+//
+//
+//     $(document).on('click', '.play-button', function() {
+//         if (!$(this).hasClass('playlist-button')) {
+//             return playSong(this);
+//         }
+//         return false;
+//     });
+//
+//     $(document).on('click', '.ajax-action', function() {
+//         ajaxAction($(this).attr('href'));
+//         return false;
+//     });
+//
+//     $(document).on('mouseover', '.hover-show', function() {
+//         $(this).click();
+//     })
+//
+//     $(document).on('mouseover', '.comments-container .each-comment', function() {
+//         var id = $(this).attr('id');
+//         $('#'+id+'-actions a').fadeIn();
+//     })
+//     $(document).on('mouseleave', '.comments-container .each-comment', function() {
+//         $(this).find('.actions a').hide();
+//     });
+//
+//     $(document).on("keydown", function(key) {
+//         //alert(key.keyCode);
+//         if(key.keyCode == 32) {
+//             if($('input:focus, textarea:focus').length == 0) {
+//                 // Prevent the key action
+//                 key.preventDefault();
+//                 if($("#music-player").data('jPlayer').status.paused) {
+//                     $("#music-player").jPlayer('play');
+//                 } else {
+//                     $("#music-player").jPlayer('pause');
+//                 }
+//             }
+//         }
+//
+//         if(key.keyCode == 39) {
+//             if($('input:focus, textarea:focus').length == 0) {
+//                 // Prevent the key action
+//                 key.preventDefault();
+//                 playNext();
+//             }
+//         }
+//         if(key.keyCode == 37) {
+//             if($('input:focus, textarea:focus').length == 0) {
+//                 // Prevent the key action
+//                 key.preventDefault();
+//                 playprev()
+//             }
+//         }
+//         if(key.keyCode == 77) {
+//             if($('input:focus, textarea:focus').length == 0) {
+//                 // Prevent the key action
+//                 key.preventDefault();
+//                 if($('.jp-unmute').is(':hidden')) {
+//                     $('.jp-mute').click();
+//                 } else {
+//                     $('.jp-unmute').click();
+//                 }
+//             }
+//         }
+//         if(key.keyCode == 77) {
+//             if($('input:focus, textarea:focus').length == 0) {
+//                 // Prevent the key action
+//                 key.preventDefault();
+//                 if($('.jp-unmute').is(':hidden')) {
+//                     $('.jp-mute').click();
+//                 } else {
+//                     $('.jp-unmute').click();
+//                 }
+//             }
+//         }
+//         if(key.keyCode == 82) {
+//             if($('input:focus, textarea:focus').length == 0) {
+//                 // Prevent the key action
+//                 //key.preventDefault();
+//                 $('.repeat-song-trigger').click();
+//             }
+//         }
+//     });
+//
+//     $(document).on('click', '.reply-button', function() {
+//         //first hide all comments form opened
+//
+//         var container = $(this).parent().parent().parent().parent();
+//         var display = container.find('.comment-form').css('display');
+//         $(".comments-container .comment-form").fadeOut();
+//         if (display !== 'none') {
+//             container.find('.comment-form').fadeOut();
+//         } else {
+//             container.find('.comment-form').fadeIn();
+//         }
+//
+//         return false;
+//     });
+//
+//     $(document).on('click', '.load-more-button', function() {
+//         globalPaginate($(this).data('container'));
+//         return false;
+//     });
+//
+//     $(document).on('click', '.playlist-play-button', function() {
+//         playSong($('.track-play-button'));
+//         return false;
+//     });
+//
+//     $(document).on('mouseover', '.track-hover-display-container', function() {
+//         // $('.track-hover-display').hide();
+//         $(this).find('.track-hover-display').fadeIn();
+//     });
+//
+//     $(document).on('mouseleave', '.track-hover-display-container', function() {
+//         $(this).find('.track-hover-display').fadeOut();
+//     });
+//
+//     $(document).on('mousedown', '.jp-volume-bar', function() {
+//         var parentOffset = $(this).offset(),
+//             width = $(this).width();
+//         $(window).mousemove(function(e) {
+//             var x = e.pageX - parentOffset.left,
+//                 volume = x/width
+//             if (volume > 1) {
+//                 $("#music-player").jPlayer("volume", 1);
+//             } else if (volume <= 0) {
+//                 $("#music-player").jPlayer("mute");
+//             } else {
+//                 $("#music-player").jPlayer("volume", volume);
+//                 $("#music-player").jPlayer("unmute");
+//             }
+//
+//             savePlayerVolume();
+//         });
+//         return false;
+//     });
+//
+//     if(localStorage.getItem("store-volume") !== null) {
+//         $("#music-player").jPlayer("volume", localStorage.getItem("store-volume"));
+//     }
+//
+//     $(document).on('mouseup', function() {
+//         $(window).unbind("mousemove");
+//     });
+//
+//     $(document).on('submit', '.searchbar', function() {
+//         if ($(this).find('input').val() === '') return false;
+//         var term = $(this).find('input').val();
+//         var page = ($('#search-page').data('page') === undefined) ? '' : $('#search-page').data('page');
+//         term = term.replace('#', '');
+//         var url = buildLink("search", [{key: 'term', value: term}, {key: 'page',value:page}])
+//         load_page(url);
+//         return false;
+//     });
+//
+//     $(document).on('keyup', '.searchbar input', function() {
+//         if ($(this).val().length > 0 && $(window).width() > 700) {
+//             $(".search-dropdown-container").fadeIn();
+//             $('.search-dropdown-container').html('<div class="ms_bars mt-3"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>');
+//
+//             var term = $(this).val();
+//             var page = ($('#search-page').data('page') === undefined) ? '' : $('#search-page').data('page');
+//             term = term.replace('#', '');
+//             var url = buildLink("search/dropdown", [{key: 'term', value: term}, {key: 'page',value:page}]);
+//             $.ajax({
+//                 url : url,
+//                 success : function(r) {
+//                     $('.search-dropdown-container').html(r);
+//                 }
+//             });
+//
+//             $(document).click(function(e) {
+//                 if(!$(e.target).closest(".search-dropdown-container").length) $(".search-dropdown-container").hide();
+//             })
+//         }
+//     });
+//
+//     $(document).click(function(e) {
+//         var trigger  = $("#show-notification-btn");
+//         if(!$(e.target).closest(".notification-dropdown-container").length && !$(e.target).closest(trigger).length) {
+//             $(".notification-dropdown-container").hide();
+//         }
+//     });
+//
+//     setupBrowserNotification();
+//
+//     setInterval(function() {
+//         if (window.browserNotification !== null) {
+//             //window.browserNotification.showNotification("This is mes")
+//         }
+//         if (isLoggedIn && !window.notificationIsChecking) {
+//             window.notificationIsChecking = true;
+//             var push = (window.browserNotification !== null) ? true : false;
+//             $.ajax({
+//                 url : buildLink('check/notification', [{key : 'time', value: lastTime},{key:'push',value:push}]),
+//                 success : function(r) {
+//                     if(r === 'login') {
+//                         isLoggedIn = false;
+//                         return;
+//                     }
+//
+//                     var result = jQuery.parseJSON(r);
+//                     lastTime = result.time;
+//
+//                     if (result.notification > 0) {
+//                         var value = (result.notification > 99) ? '99+' : result.notification;
+//                         $('.notification-count').html(value);
+//                         $('.notification-count').fadeIn();
+//                     } else {
+//                         $('.notification-count').hide();
+//                     }
+//
+//                     if (result.messages > 0) {
+//                         var value2 = (result.messages > 99) ? '99+' : result.messages;
+//                         $('.message-count').html(value2);
+//                         $('.message-count').fadeIn();
+//                     } else {
+//                         $('.message-count').hide();
+//                     }
+//                     var title = siteTitle;
+//                     if (window.isFocused) {
+//
+//                     } else {
+//                         if (result.latestNotifications.length > 0) {
+//                             var body = "";
+//                             if (result.latestNotifications.length > 1) {
+//                                 var count = result.latestNotifications.length -1;
+//                                 body += strings.you_have_new+" "+ count + " "+ strings.notifications;
+//                                 window.browserNotification.showNotification(title, {body: body});
+//                             } else {
+//                                 var obj = result.latestNotifications[0];
+//                                 body = obj.full_title;
+//                                 window.browserNotification.showNotification(title, {body: body,image: obj.avatar});
+//                             }
+//                         }
+//
+//                         if (result.latestMessages.length > 0) {
+//                             var body = "";
+//                             if (result.latestMessages.length > 1) {
+//                                 var count = result.latestMessages.length -1;
+//                                 body += strings.you_have_new+" "+ count + " "+ strings.messages;
+//                                 window.browserNotification.showNotification(title, {body: body});
+//                             } else {
+//                                 var obj = result.latestMessages[0];
+//                                 var theMessageContent = obj.message;
+//                                 if (obj.trackid !== '0') {
+//                                     theMessageContent += (theMessageContent !== '') ? '\n '+ obj.track.title : obj.track.title;
+//                                 }
+//                                 if (obj.playlistid !== '0') {
+//                                     theMessageContent += (theMessageContent !== '') ? '\n '+ obj.playlist.name : obj.playlist.name;
+//                                 }
+//                                 body = obj.full_name+'\n '+theMessageContent;
+//                                 window.browserNotification.showNotification(title, {body: body,image: obj.avatar});
+//                             }
+//                         }
+//                     }
+//                     window.notificationIsChecking = false;
+//                 }
+//             });
+//         }
+//     }, updateTime);
+//
+//
+//     $(document).on('click', '#stripeButton', function() {
+//         var type = $(this).data('type');
+//         var typeId = $(this).data('typeid');
+//         var price = $(this).data('price');
+//         var handler = StripeCheckout.configure({
+//             key: stripeKey,
+//             image: siteLogo,
+//             locale: 'auto',
+//             currency : currency,
+//             token: function(token) {
+//                 //console.log(token)
+//                 $("#paymentMethodModal .loader").fadeIn();
+//                 $.ajax({
+//                     url : buildLink('payment/stripe', [
+//                         {key: 'type', value: type},
+//                         {key: 'typeid', value: typeId},
+//                         {key: 'price', value: price},
+//                         {key: 'token', value: token.id}
+//                     ]),
+//                     success : function(r) {
+//                         r = jQuery.parseJSON(r);
+//                         $("#paymentMethodModal .loader").hide();
+//                         if (r.status === 1) {
+//                             $("#paymentMethodModal").modal('hide');
+//                             notify(r.message, 'success');
+//                             load_page(r.url);
+//                         } else {
+//                             notify(r.message, 'error');
+//                         }
+//                     }
+//                 })
+//             }
+//         });
+//
+//         handler.open({
+//             name: $(this).data('title'),
+//             description: $(this).data('desc'),
+//             amount: $(this).data('price') * 100
+//         });
+//
+//         // Close Checkout on page navigation:
+//         window.addEventListener('popstate', function() {
+//             handler.close();
+//         });
+//
+//         return false;
+//     });
+//
+//
+//     $(window).on('blur', function() {
+//         window.isFocused = false;
+//     })
+//     $(window).on('focus', function() {
+//         window.isFocused = true;
+//     });
+//
+//     $(document).on('click', '.navicon', function() {
+//         if ($('body').hasClass('side-menu-open')) {
+//             $('body').removeClass('side-menu-open')
+//         }  else {
+//             $('body').addClass('side-menu-open');
+//             //document.body.style.overflow = 'hidden';
+//         }
+//         return false;
+//     });
 
     $(document).on('click', '.navicon-2', function() {
         if ($('body').hasClass('side-collapsed')) {
@@ -2336,7 +2407,7 @@ $(function() {
         savePlayerVolume()
     })
 
-});
+// });
 
 function savePlayerVolume() {
 
@@ -2400,9 +2471,9 @@ function prepare_track_time_comments() {
     //lets gather ids of tracks that have not been loaded
     var ids = "";
     $(".track-time-comment-container").each(function() {
-       if ($(this).data('loaded') === undefined) {
-           ids += (ids != '') ? ','+$(this).data('id') : $(this).data('id');
-       }
+        if ($(this).data('loaded') === undefined) {
+            ids += (ids != '') ? ','+$(this).data('id') : $(this).data('id');
+        }
     });
 
     if (ids !== '') {
@@ -2709,11 +2780,11 @@ function spotlightlistUpdated(c) {
 }
 
 function showFullLoading() {
-   // $('.full-loader').slideDown();
+    // $('.full-loader').slideDown();
 }
 
 function hideFullLoading() {
-   // $('.full-loader').hide();
+    // $('.full-loader').hide();
 }
 
 function buy_item(type, id) {
@@ -2814,7 +2885,7 @@ function fetchVideo() {
                 notify(json.message, 'error');
             } else {
                 console.log(json)
-               // notify(json.message, 'error');
+                // notify(json.message, 'error');
                 $('.video-selector').hide();
                 $('#video-form-container').fadeIn();
                 $('.video-title').val(json.title);
@@ -2827,7 +2898,7 @@ function fetchVideo() {
                 console.log(json.duration);
                 $('#songAvatar').css('background-image','url('+json.thumbnail+')');
                 $('#songAvatar').show();
-               // alert();
+                // alert();
                 var tags = json.tags.split(',');
                 for(i=0;i<tags.length;i++) {
                     window.globalSelect[0].selectize.createItem(tags[i]);

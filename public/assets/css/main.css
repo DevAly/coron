@@ -1,14 +1,13 @@
 body{
+    direction: rtl;
     position: relative;
     width: 100%;
     overflow-x: hidden;
     background: #F7F7F7;
     background: #ffffff;
-    font-family: Gotham;
     font-weight: 300;
     font-size: 13px;
-    font-family: Roboto,-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Cairo', sans-serif !important;
 }
 .wrap {
     -ms-word-break: break-all;
@@ -249,7 +248,7 @@ input.cmn-toggle-round-flat:checked + label:after {
 }
 #sideHeader{
     position: fixed;
-    left: 0;
+    right: 0;
     height:100vh;
     z-index: 999;
     overflow: hidden;
@@ -289,6 +288,7 @@ input.cmn-toggle-round-flat:checked + label:after {
     display: block;
     width: 100%;
     margin:1px 0;
+    text-align: right;
 }
 #sideHeader .nav li a {
     display: block;
@@ -363,7 +363,7 @@ input.cmn-toggle-round-flat:checked + label:after {
     height: 75px;
     background: #ffffff;
     width: 100%;
-    padding-left: 250px;
+    padding-right: 250px;
 }
 .in-header ul{
    margin: 0;
@@ -524,7 +524,7 @@ input.cmn-toggle-round-flat:checked + label:after {
     margin: 0;
 }
 #page-container #wrapper-container {
-    padding-left: 250px;
+    padding-right: 250px;
     padding-top: 75px;
 }
 #page-container .content{
@@ -534,7 +534,7 @@ input.cmn-toggle-round-flat:checked + label:after {
 .navicon-2 {
     font-size: 35px;
     position: absolute;
-    left: 0;
+    right: -67px;
     top: -6px;
 
 }
@@ -1688,7 +1688,7 @@ input.cmn-toggle-round-flat:checked + label:after {
 }
 .profile-menu .actions-container {
     position: absolute;
-    right: 0;
+    left: 0;
     top: 0px;
 }
 .profile-menu ul{
@@ -3464,11 +3464,11 @@ b{
 }
 @media (min-width: 1000px) {
     .side-collapsed #page-container #wrapper-container , .side-collapsed .in-header,.side-collapsed .sound-container {
-        padding-left: 0 !important;
+        padding-right: 0 !important;
     }
     .side-collapsed #sideHeader {
-        webkit-transform: translateX(-100%);
-        transform: translateX(-100%);
+        webkit-transform: translateX(100%);
+        transform: translateX(100%);
     }
 
 }

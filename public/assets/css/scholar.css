@@ -1,0 +1,55 @@
+.in-header{
+    background-color : #fff                            }
+.in-header{
+    border-bottom-color : #E9ECEF                        }
+.searchbar{
+    background-color : #E9ECEF                            }
+.searchbar input{
+    color : #000 !important;
+}
+.searchbar i{
+    color : #000 !important;
+}
+.in-header ul li > a:not(.btn){
+    color : #000 !important;
+}
+#sideHeader{
+    background-color : #F3F5F6                            }
+#sideHeader .nav .sub-menu{
+    color : #000 !important;
+}
+#sideHeader .nav .head{
+    color : grey !important;
+}
+#sideHeader .nav li a i{
+    border-color : #000                        }
+#sideHeader .nav li .active, #sideHeader .nav li a i{
+    color : #FF6500 !important;
+}
+.btn-primary,.btn-secondary{
+    color : #fff !important;
+}
+.btn-primary{
+    background-color : #FF5533                            }
+.btn-secondary{
+    background-color : #868E95                            }
+.sound-container{
+    background-color : #F4F9FC                            }
+.sound-container .middle-content a, .sound-container .play-icon{
+    color : #686868 !important;
+}
+{
+    color : #0F0710 !important;
+}
+{
+    color : #FF5533 !important;
+}
+.colored{
+    color : #ff5533 !important;
+}
+.colored-bg{
+    background-color : #ff5533                            }
+::-webkit-scrollbar-thumb{
+    background-color : #636e72                            }
+.pro-badge{
+    background-color : #636E72                            }
