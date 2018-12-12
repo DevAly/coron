@@ -2021,7 +2021,7 @@ input.cmn-toggle-round-flat:checked + label:after {
     width: 100%;
     position: relative;
     margin: 10px 0;
-    height: 250px;
+    height: 400px;
 }
 .horizontal-list .slider .scroller {
     border: solid 1px #ebf0f2;
@@ -2052,7 +2052,7 @@ input.cmn-toggle-round-flat:checked + label:after {
 .horizontal-list .slider .list{
     width: 100%;
     max-width: 220px !important;
-    height: 250px;
+    height: 400px;
     margin-right: 20px;
     position: relative;
 }
@@ -2072,7 +2072,7 @@ input.cmn-toggle-round-flat:checked + label:after {
 }
 .horizontal-list .slider .list .art{
     width: 100%;
-    height: 180px;
+    height: 300px;
     background-position: center;
     -webkit-background-size: cover;
     background-size: cover;
@@ -2120,8 +2120,9 @@ input.cmn-toggle-round-flat:checked + label:after {
     display: none !important;
 }
 .horizontal-list .slider .list .title {
-    margin: 5px 0;
-    display: block;
+  margin: 32px 0;
+  display: block;
+  text-align: center;
 }
 b{
     text-overflow: ellipsis;
