@@ -1,0 +1,1026 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}coron
+    {{ controller_name }}!{% endblock %}
+
+{% block body %}
+
+
+    <div id="sideHeader">
+        <div class="top clearfix">
+            <div class="float-left">
+                <a class="navbar-brand "  href="https://music.krea8iv.com/demo/">
+                    <img class="light-logo" style="" src="https://music.krea8iv.com/demo/uploads/settings/552635607da2111fa6b63691c955a565.png"/>
+                    <img class="dark-logo" src="https://music.krea8iv.com/demo/uploads/settings/45579c1756cee30b63f8f2b036abe407.png"/>
+                </a>
+            </div>
+            <div class="float-right dropdown pt-4 pr-2">
+                <a href="" title="Change theme mode" style="position: relative;top:3px" onclick="return change_theme_mode('light-mode')" class="theme-mode-button mtitle"><i class="la la-lightbulb-o"></i></a>
+                <a data-toggle="dropdown" class="dropdown-toggle " href="#" >
+                    <img style="width:20px" src="https://music.krea8iv.com/demo/assets/images/flags/en.png"/>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a href="https://music.krea8iv.com/demo/change/language?id=ja" class="dropdown-item"> <img style="width: 17px;" class="mr-1" src="https://music.krea8iv.com/demo/assets/images/flags/ja.png"/> <span class="pt-1">Japanese</span></a>
+                    <a href="https://music.krea8iv.com/demo/change/language?id=pt" class="dropdown-item"> <img style="width: 17px;" class="mr-1" src="https://music.krea8iv.com/demo/assets/images/flags/pt.png"/> <span class="pt-1">Portuguese</span></a>
+                    <a href="https://music.krea8iv.com/demo/change/language?id=fr" class="dropdown-item"> <img style="width: 17px;" class="mr-1" src="https://music.krea8iv.com/demo/assets/images/flags/fr.png"/> <span class="pt-1">French</span></a>
+                    <a href="https://music.krea8iv.com/demo/change/language?id=ru" class="dropdown-item"> <img style="width: 17px;" class="mr-1" src="https://music.krea8iv.com/demo/assets/images/flags/ru.png"/> <span class="pt-1">Russian</span></a>
+                    <a href="https://music.krea8iv.com/demo/change/language?id=pl" class="dropdown-item"> <img style="width: 17px;" class="mr-1" src="https://music.krea8iv.com/demo/assets/images/flags/pl.png"/> <span class="pt-1">Polish</span></a>
+                    <a href="https://music.krea8iv.com/demo/change/language?id=it" class="dropdown-item"> <img style="width: 17px;" class="mr-1" src="https://music.krea8iv.com/demo/assets/images/flags/it.png"/> <span class="pt-1">Italian</span></a>
+                    <a href="https://music.krea8iv.com/demo/change/language?id=en" class="dropdown-item"> <img style="width: 17px;" class="mr-1" src="https://music.krea8iv.com/demo/assets/images/flags/en.png"/> <span class="pt-1">English</span></a>
+                    <a href="https://music.krea8iv.com/demo/change/language?id=es" class="dropdown-item"> <img style="width: 17px;" class="mr-1" src="https://music.krea8iv.com/demo/assets/images/flags/es.png"/> <span class="pt-1">Spanish</span></a>
+                    <a href="https://music.krea8iv.com/demo/change/language?id=ar" class="dropdown-item"> <img style="width: 17px;" class="mr-1" src="https://music.krea8iv.com/demo/assets/images/flags/ar.png"/> <span class="pt-1">Arabic</span></a>
+                    <a href="https://music.krea8iv.com/demo/change/language?id=nl" class="dropdown-item"> <img style="width: 17px;" class="mr-1" src="https://music.krea8iv.com/demo/assets/images/flags/nl.png"/> <span class="pt-1">Dutch</span></a>
+                    <a href="https://music.krea8iv.com/demo/change/language?id=de" class="dropdown-item"> <img style="width: 17px;" class="mr-1" src="https://music.krea8iv.com/demo/assets/images/flags/de.png"/> <span class="pt-1">German</span></a>
+                </div>
+            </div>
+        </div>
+
+        <div id="side-menu">
+            <ul class="nav">
+                <li><a class="head" href="https://music.krea8iv.com/demo/"  data-ajax="true">Home</a></li>
+                <li><a id="charts-menu" class="sub-menu   " href="https://music.krea8iv.com/demo/charts"  data-ajax="true"><i class="la la-bar-chart "></i> <span>Charts</span></a></li>
+
+                <li><a id="spotlight-menu" class="sub-menu   " href="https://music.krea8iv.com/demo/spotlight"  data-ajax="true"><i class="la la-fire "></i> <span>Spotlight</span>  <span class='badge badge-secondary float-right mt-2'>42</span></a></li><li class="clearfix ">
+                    <a id="videos-menu" class="sub-menu  float-left  " href="https://music.krea8iv.com/demo/videos"  data-ajax="true"> <i class="la la-film "></i> Videos</a>
+                </li>
+
+                <li><a class="head" href="https://music.krea8iv.com/demo/store"  data-ajax="true">Store</a></li>
+                <li><a id="store-browse-menu" class="sub-menu   " href="https://music.krea8iv.com/demo/store"  data-ajax="true"><i class="la la-shopping-cart "></i> <span>Browse</span></a></li>
+                <li><a id="store-purchased-menu" class="sub-menu   " href="https://music.krea8iv.com/demo/store/purchased"  data-ajax="true"><i class="la  la-cart-arrow-down "></i> <span>Purchased</span></a></li>
+                <li><a class="head" href="https://music.krea8iv.com/demo/"  data-ajax="true">Explore</a></li>
+                <li><a id="discover-menu" class="sub-menu  active " href="https://music.krea8iv.com/demo/discover"  data-ajax="true"> <i class="la la-music  "></i><span>All</span></a></li>
+                <li><a id="artists-menu" class="sub-menu   " href="https://music.krea8iv.com/demo/discover/artists"  data-ajax="true"> <i class="la la-microphone "></i><span>Popular Artists</span></a></li>
+                <li><a id="albums-menu" class="sub-menu   " href="https://music.krea8iv.com/demo/discover/albums"  data-ajax="true"> <i class="la la-folder-o  "></i><span>Popular Albums</span></a></li>
+
+
+                <li><a class="head" href="https://music.krea8iv.com/demo/"  data-ajax="true">Collection</a></li>
+                <li><a id="listen-later-menu" class="sub-menu clearfix  " href="https://music.krea8iv.com/demo/collection/listen-later"  data-ajax="true">
+                        <div class="float-left">
+                            <i class="la-clock-o la "></i> <span>Listen Later</span>
+                        </div>
+                    </a></li>
+                <li><a id="history-menu" class="sub-menu   " href="https://music.krea8iv.com/demo/collection/history"  data-ajax="true"> <i class="la-calendar la "></i> <span>History</span></a></li>
+                <li><a id="likes-menu" class="sub-menu   " href="https://music.krea8iv.com/demo/collection/likes"  data-ajax="true"> <i class="la la-heart-o "></i><span>Likes</span></a></li>
+                <li><a id="playlists-menu" class="sub-menu   " href="https://music.krea8iv.com/demo/collection/playlists"  data-ajax="true"> <i class="la la-indent "></i><span>Playlists</span></a></li>
+                <li><a id="collection-albums-menu" class="sub-menu   " href="https://music.krea8iv.com/demo/collection/albums"  data-ajax="true"> <i class="la-folder-open la "></i> <span>Albums</span></a></li>
+                <li><a id="watch-later-menu" class="sub-menu   " href="https://music.krea8iv.com/demo/watch/later"  data-ajax="true"> <i class="la-clock-o la "></i> <span>Watch later</span></a></li><li><a id="watch-history-menu" class="sub-menu   " href="https://music.krea8iv.com/demo/watch/history"  data-ajax="true"> <i class="la-calendar la "></i> <span>Watch history</span></a></li>    </ul>    </div>
+    </div>
+    <div id="page-container">
+        <div class=" in-header-mobile">
+            <div class="in-header clearfix">
+                <a href="" class="navicon"><i class="la la-navicon"></i></a>
+                <div class="inner-container">
+                    <div class="clearfix">
+                        <div class="left float-right clearfix" style="position: relative;">
+                            <a href="" class="navicon-2"><i class="la la-navicon"></i></a>
+                            <form class="form-inline searchbar" action="https://music.krea8iv.com/demo/search">
+                                <input value="" autocomplete="off" class="" type="search" name="term" placeholder="ابحث ">
+                                <button class="" type="submit" style="background: none;border: none;padding: 0;"><i class="la la-search"></i></button>
+                            </form>
+
+                            <div class="search-dropdown-container header-dropdown">
+
+                            </div>
+
+                        </div>
+                        <div class="right float-left">
+                            <ul class="float-left">
+
+    <!--  <li class="mobile-bottom-up"><a href="https://music.krea8iv.com/demo/pro" data-ajax="true" class="btn btn-sm btn-primary">Go Pro</a></li>-->
+
+                                <li><a  onclick="return changeAuthModal('.login-form')"   href="" class="">
+                                        <span class="hide-mobile-sm">تسجيل الدخول</span>
+                                        <i class="show-mobile-sm la la-lock " style="position:relative;bottom: 5px;display: none;"></i>
+                                    </a></li>
+                                <li class="hide-mobile-sm"><a  onclick="return changeAuthModal('.signup-form')"   href="" class="">إنشاء حساب</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div id="wrapper-container" style="padding-bottom: 70px;">
+
+                <div class="profile-header clearfix" >
+                    <div class="bg-container" style="background-image: url(https://music.krea8iv.com/demo/uploads/cover/1/6a943478225619a093a73556aeebf4d9.jpg);"></div>
+                    <div class="inner-container">
+                        <div class=" content">
+                            <div style="background-image: url(https://music.krea8iv.com/demo/uploads/avatar/1/_200_56cca13caa4d41cb3b575179c3c33240.jpg)" class="avatar mr-3"></div>
+                            <h5 class="mt-0">John doe     <span class="pro-badge  mtitle" title="Pro Badge"><i class="fa fa-star"></i></span>
+                            </h5>
+                            <span><span class="followers-count-1">604</span> Followers</span>
+
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="profile-menu">
+                    <div class=" inner-container">
+
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-ajax="true"  href="https://music.krea8iv.com/demo/adminuser" >All</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link "  data-ajax="true"  href="https://music.krea8iv.com/demo/adminuser/tracks" >Tracks</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link "  data-ajax="true"  href="https://music.krea8iv.com/demo/adminuser/albums" >Albums</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link "  data-ajax="true"  href="https://music.krea8iv.com/demo/adminuser/playlists" >Playlists</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link "  data-ajax="true"  href="https://music.krea8iv.com/demo/adminuser/reposts" >Reposts</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link "  data-ajax="true"  href="https://music.krea8iv.com/demo/adminuser/videos" >Videos</a>
+                            </li>        </ul>
+                        <div class="actions-container dropdown ">
+                            <button class="btn mtooltip" title="Share profile" onclick="return share(1, 'profile')"> Share</button>
+                            <button class="btn dropdown-toggle no-caret hover-show" data-toggle="dropdown"><i class="fa  fa-ellipsis-h"></i></button>
+                            <div class="dropdown-menu dropdown-menu-right  mt-2" aria-labelledby="dropdownMenuButton">
+
+                                <a class="dropdown-item confirm" data-message="Are you sure you want to block this user?" data-ajax-action="true"  href="https://music.krea8iv.com/demo/block?id=1"><i class="la la-lock"></i> Block user</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-content">
+                    <div class="inner-container">
+                        <div class="row mt-3">
+                            <div class="col-md-8">
+                                <div class="spotlight-container">
+
+                                    <div class="clearfix">
+                                        <div class="float-left">
+                                            <h5>Spotlight                                                    </h5>
+                                        </div>
+                                        <div class="float-right">
+                                        </div>
+                                    </div>
+
+
+
+
+                                    <div class="each-track each-track-76 track-76" id="track-76">
+
+                                        <div class="title-container clearfix">
+                                            <div class="float-left">
+                                                <div class="media">
+
+                                                    <img class="mr-3" style="width:20px;height:20px;-webkit-border-radius: 100px;-moz-border-radius: 100px;border-radius: 100px;" src="https://music.krea8iv.com/demo/uploads/avatar/1/_75_56cca13caa4d41cb3b575179c3c33240.jpg" >
+                                                    <div class="media-body">
+                                                        <a class="user-link "  data-id="1" data-ajax="true" href="https://music.krea8iv.com/demo/adminuser">
+                                                            <span>John doe </span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="float-right">
+
+                                                <span class="timeago" title="2018-09-21T07:30:42+00:00">2018-09-21T07:30:42+00:00</span>
+
+                                            </div>
+                                        </div>
+                                        <div class="left-content">
+                                            <a data-ajax="true" class="" href="https://music.krea8iv.com/demo/track/76-aint-no-sunshine">
+                                                <div class=" art" style="background-image: url(https://music.krea8iv.com/demo/uploads/tracks/1/art/2018/_200_c3c26db561eee2803e0381216e7ece91.jpg);"></div>
+                                            </a>
+                                        </div>
+
+
+                                        <div class=" body-content track-main-progress-wave-revert  ">
+                                            <div class="clearfix">
+                                                <div class="float-left" style="max-width: 60%">
+                                                    <div class="media detail">
+
+                                                        <a href=""
+                                                           data-id="76"
+                                                           data-art="https://music.krea8iv.com/demo/uploads/tracks/1/art/2018/_200_c3c26db561eee2803e0381216e7ece91.jpg"
+                                                           data-title="Ain't No Sunshine"
+                                                           data-link="https://music.krea8iv.com/demo/track/76"
+                                                           data-owner="John doe"
+                                                           data-owner-link="https://music.krea8iv.com/demo/adminuser"
+                                                           data-wave="uploads/waves/wave/cc92e32ee2a4c948d36fa2d0ebd5ec46.png"
+                                                           data-type="my-spotlight"
+                                                           data-typeid="1"
+                                                           data-wave-colored="uploads/waves/wave/b1713f2202a56b5109bd243011c3ea29.png"
+                                                           class="play-button track-play-button track-play-button-76" id="track-play-button-76" ><i class="fa  fa-play"></i></a>
+
+                                                        <div class="media-body">
+                                                  <span class="title-info">
+                             <a  data-ajax="true" class="user-link "  data-id="1" href="https://music.krea8iv.com/demo/adminuser">
+                                 John doe                                     <span class="pro-badge  mtitle" title="Pro Badge"><i class="fa fa-star"></i></span>
+                             </a>
+                        </span>
+                                                            <h6 class="media-heading">
+                                                                <a data-ajax="true" href="https://music.krea8iv.com/demo/track/76-aint-no-sunshine">
+                                                                    Ain't No Sunshine                               </a>
+
+                                                            </h6>
+
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="float-right">
+                                                    <div class="dropdown">
+                                                        <a href="" data-toggle="dropdown"  class="tag dropdown-toggle hover-show no-caret">
+                                                            #Hipop                            <i class="la la-ellipsis-h"></i>
+                                                        </a>
+                                                        <div class="dropdown-menu dropdown-menu-right tag-dropdown">
+                                                            <a class="tag" href="https://music.krea8iv.com/demo/search?term=Hipop" data-ajax="true">#Hipop</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="play-controls wave-possible-play-control" data-wave="">
+                                                <div class="playprogress" data-id="76" data-duration="244.54564285714">
+                                                    <img class="wave-image" src="https://music.krea8iv.com/demo/uploads/waves/wave/cc92e32ee2a4c948d36fa2d0ebd5ec46.png"/>
+                                                    <div class="track-time">04:04</div>
+                                                </div>
+                                            </div>
+                                            <div class="playprogress-revert">
+                                                <img src='https://music.krea8iv.com/demo/uploads/waves/wave/cc92e32ee2a4c948d36fa2d0ebd5ec46.png' class='wave-image'/>
+                                            </div>
+
+                                            <div class="track-time-comment-container track-time-comment-container-76" data-id="76">
+                                                <div class="pane" data-seconds="244.54564285714">
+                                                    <div class="users"></div>
+                                                </div>
+
+
+                                            </div>
+
+                                            <div class="display-inline-likes track-likes-76">
+                                                <a class="user-link "  data-id="1082" href="https://music.krea8iv.com/demo/testersdsdffsda" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a>
+                                                <a class="user-link "  data-id="1074" href="https://music.krea8iv.com/demo/nerdan" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/uploads/avatar/1074/_75_15cd52a453f1f1cb875db16df77bc14a.png)"> </a>
+                                                <a class="user-link "  data-id="994" href="https://music.krea8iv.com/demo/Testtt" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/uploads/avatar/994/_75_2fdeccee61bae9f77b53fd686a26f7f7.png)"> </a>
+                                                <a class="user-link "  data-id="954" href="https://music.krea8iv.com/demo/derrick" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/uploads/avatar/954/_75_a9529ac21009927095046a4e7abc4445.png)"> </a>
+                                                <a class="user-link "  data-id="922" href="https://music.krea8iv.com/demo/Joejackson22" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a>
+                                                <a class="user-link "  data-id="853" href="https://music.krea8iv.com/demo/unix86" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a>
+                                                <a class="user-link "  data-id="805" href="https://music.krea8iv.com/demo/muzak" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a>
+                                                <a class="user-link "  data-id="710" href="https://music.krea8iv.com/demo/mohamedgmal" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a>
+                                                <a class="user-link "  data-id="636" href="https://music.krea8iv.com/demo/Tgtff" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a>
+                                                <a class="user-link "  data-id="550" href="https://music.krea8iv.com/demo/Sandy088" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/uploads/avatar/550/_75_bd74fbdf324e118845ec52abef8bd4b3.jpg)"> </a>
+                                                <a class="user-link "  data-id="547" href="https://music.krea8iv.com/demo/nyasha" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a>
+                                                <a class="user-link "  data-id="540" href="https://music.krea8iv.com/demo/jojo" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/uploads/avatar/540/_75_ab17d2fb125b31a3e9cfd56dc97107a4.jpg)"> </a>
+                                                <a class="user-link "  data-id="536" href="https://music.krea8iv.com/demo/jackie" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a>
+                                                <a class="user-link "  data-id="162" href="https://music.krea8iv.com/demo/greg2" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a>
+                                                <a class="user-link "  data-id="113" href="https://music.krea8iv.com/demo/Guest1" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a>
+                                            </div>
+                                            <div class="clearfix mb-3">
+                                                <div class="float-left">
+                                                    <div class="actions-container dropdown">
+                                                        <button  data-toggle="tooltip" title="Like" class="btn like-button-track-76 ajax-action " href="https://music.krea8iv.com/demo/like/item?type=track&type_id=76"><i class="la la-heart"></i></button>
+                                                        <a
+                                                                data-toggle="tooltip" title="Repost"
+                                                                href="https://music.krea8iv.com/demo/repost/item?action=repost-track&track=76&playlist_id=0"
+                                                                class="btn ajax-action repost-button-track-76 ">
+                                                            <i class="la la-retweet "></i>
+                                                        </a>
+                                                        <button                                     onclick="return share(76, 'track')"
+                                                                                                    data-toggle="tooltip" title="Share" class="btn "><i class="la la-external-link"></i></button>
+
+
+                                                        <button class="btn dropdown-toggle no-caret hover-show" data-toggle="dropdown"><i class="fa  fa-ellipsis-h"></i></button>
+                                                        <div class="dropdown-menu  mt-2" style="width: 200px;" aria-labelledby="dropdownMenuButton">
+                                                            <a  class="dropdown-item " href="#" onclick="return changePlaylistModal('.playlists', 76)"><i class="la la-plus-circle"></i> Add to Playlist</a>
+                                                            <a  class="dropdown-item ajax-action track-later " href="https://music.krea8iv.com/demo/track/add/later?track=76"  ><i class="la la-music"></i> <span>Listen Later</span></a>
+                                                            <div class="dropdown-divider"></div>
+                                                            <a onclick="return showReportTrack(76)" class="dropdown-item " href="#"><i class="fa fa-flag"></i> Report copyright infringment</a>
+                                                            <a class="dropdown-item" data-ajax="true" href="https://music.krea8iv.com/demo/track/76-aint-no-sunshine"><i class="la la-eye"></i> Go to track</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="float-right hide-mobile-sm">
+                                                    <ul class="track-stats">
+                                                        <li ><a href="https://music.krea8iv.com/demo/track/76-aint-no-sunshine/likes" data-ajax="true" class="like-count-track-76" style=""><i class="la la-heart-o"></i> <span>15</span></a></li>
+
+                                                        <li ><a href="#" class="comment-count-track-76" style=""><i class="fa fa-comment"></i> <span>2</span></a></li>
+                                                        <li ><a class="repost-count-track-76"  href="https://music.krea8iv.com/demo/track/76-aint-no-sunshine/reposters" data-ajax="true" style="">
+                                                                <i class="la la-retweet"></i>
+                                                                <span>6</span>
+                                                            </a></li>
+                                                        <li ><a  href="https://music.krea8iv.com/demo/track/76-aint-no-sunshine/listeners" data-ajax="true" style=""><i class="la la-headphones"></i> <span>100</span></a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="each-track playlist-container-58">
+
+
+                                        <div class="title-container clearfix">
+                                            <div class="float-left">
+                                                <div class="media">
+
+                                                    <img class="mr-3" style="width:20px;height:20px;-webkit-border-radius: 100px;-moz-border-radius: 100px;border-radius: 100px;" src="https://music.krea8iv.com/demo/uploads/avatar/1/_75_56cca13caa4d41cb3b575179c3c33240.jpg" >
+                                                    <div class="media-body">
+                                                        <a class="user-link "  data-id="1" data-ajax="true" href="https://music.krea8iv.com/demo/adminuser">
+                                                            <span>John doe </span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="float-right">
+
+                                                <span class="timeago" title="2018-10-16T05:31:08+00:00">2018-10-16T05:31:08+00:00</span>
+
+                                            </div>
+                                        </div>
+                                        <div class="left-content">
+                                            <a data-ajax="true" class="playlist-list-art-58" href="https://music.krea8iv.com/demo/track/306-phyano-symphony">
+                                                <div class=" art" style="background-image: url(https://music.krea8iv.com/demo/uploads/tracks/1/tracks/art/2018/_200_27f2b7354175a8356491ae6b1c049a32.png);"></div>
+                                            </a>
+                                        </div>
+
+
+                                        <div class=" body-content track-main-progress-wave-revert  ">
+                                            <div class="clearfix">
+                                                <div class="float-left" style="max-width: 60%">
+                                                    <div class="media detail">
+                                                        <a href=""
+                                                           onclick="return playlist_play(58)"
+                                                           class="play-button playlist-button" ><i class="fa  fa-play"></i></a>
+
+                                                        <div class="media-body">
+                                                  <span class="title-info">
+                             <a data-ajax="true" class="user-link "  data-id="1" href="https://music.krea8iv.com/demo/adminuser"
+                             >John doe                                     <span class="pro-badge  mtitle" title="Pro Badge"><i class="fa fa-star"></i></span>
+                             </a>
+                        </span>
+                                                            <h6 class="media-heading">
+                                                                <a data-ajax="true" href="https://music.krea8iv.com/demo/set/58-enjoy-the-tracks">
+                                                                    Enjoy the tracks                               </a>
+
+                                                            </h6>
+
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                                <div class="float-right">
+                                                </div>
+                                            </div>
+
+                                            <div class="play-controls wave-possible-play-control" data-wave="">
+                                                <div class="playprogress" data-id="306" data-duration="31.4053125">
+                                                    <img class="wave-image" src="https://music.krea8iv.com/demo/uploads/waves/wave/2798c0718e4ca3b289a029fb751e8a09.png"/>
+                                                    <div class="track-time">00:31</div>
+                                                </div>
+                                            </div>
+                                            <div class="playprogress-revert">
+                                                <img src='https://music.krea8iv.com/demo/uploads/waves/wave/2798c0718e4ca3b289a029fb751e8a09.png' class='wave-image'/>
+                                            </div>
+
+                                            <div class="playlists-tracks-container playlist-tracks-list-58">
+                                                <div class="playlist-url-58" data-link="https://music.krea8iv.com/demo/set/58-enjoy-the-tracks"></div>
+                                                <div class="each-inline-track track-mini-inline track track-hover-display-container each-track-306 track-306" id="track-306">
+                                                    <a href=""
+                                                       data-id="306"
+                                                       data-art="https://music.krea8iv.com/demo/uploads/tracks/1/tracks/art/2018/_200_27f2b7354175a8356491ae6b1c049a32.png"
+                                                       data-title="Phyano Symphony"
+                                                       data-link="https://music.krea8iv.com/demo/track/306"
+                                                       data-owner="John doe"
+                                                       data-type="playlist"
+                                                       data-typeid="58"
+                                                       data-owner-link="https://music.krea8iv.com/demo/adminuser"
+                                                       data-wave="uploads/waves/wave/2798c0718e4ca3b289a029fb751e8a09.png"
+                                                       data-wave-colored="uploads/waves/wave/f9f8fe428e9a316229ed0f31c8e6a4f4.png"
+                                                       class=" play-button track-play-button-306" id="track-play-button-306" >
+
+                                                        <div class="art" style="background-image: url(https://music.krea8iv.com/demo/uploads/tracks/1/tracks/art/2018/_200_27f2b7354175a8356491ae6b1c049a32.png);">
+
+                                                        </div>
+                                                        <div class="content">
+
+                                                            <h6 class="title">
+                                    <span class="title-info">
+
+                                        <b>                                            John doe - Phyano Symphony</b>
+                                    </span>
+                                                            </h6>
+
+                                                        </div>
+                                                    </a>
+                                                    <div class="play-control" data-wave="">
+                                                        <div class="play-controls">
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="each-inline-track track-mini-inline track track-hover-display-container each-track-305 track-305" id="track-305">
+                                                    <a href=""
+                                                       data-id="305"
+                                                       data-art="https://music.krea8iv.com/demo/uploads/tracks/1/art/2018/_200_19168dc85f234831c0938f4035de365b.jpg"
+                                                       data-title="Track 2"
+                                                       data-link="https://music.krea8iv.com/demo/track/305"
+                                                       data-owner="John doe"
+                                                       data-type="playlist"
+                                                       data-typeid="58"
+                                                       data-owner-link="https://music.krea8iv.com/demo/adminuser"
+                                                       data-wave="uploads/waves/wave/910e52100feac00f44f8c265407a7163.png"
+                                                       data-wave-colored="uploads/waves/wave/b251ed4201f38661bc0dc3cb4f0ee5a1.png"
+                                                       class=" play-button track-play-button-305" id="track-play-button-305" >
+
+                                                        <div class="art" style="background-image: url(https://music.krea8iv.com/demo/uploads/tracks/1/art/2018/_200_19168dc85f234831c0938f4035de365b.jpg);">
+
+                                                        </div>
+                                                        <div class="content">
+
+                                                            <h6 class="title">
+                                    <span class="title-info">
+
+                                        <b>                                            John doe - Track 2</b>
+                                    </span>
+                                                            </h6>
+
+                                                        </div>
+                                                    </a>
+                                                    <div class="play-control" data-wave="">
+                                                        <div class="play-controls">
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="each-inline-track track-mini-inline track track-hover-display-container each-track-304 track-304" id="track-304">
+                                                    <a href=""
+                                                       data-id="304"
+                                                       data-art="https://music.krea8iv.com/demo/uploads/tracks/1/art/2018/_200_19168dc85f234831c0938f4035de365b.jpg"
+                                                       data-title="Track 1"
+                                                       data-link="https://music.krea8iv.com/demo/track/304"
+                                                       data-owner="John doe"
+                                                       data-type="playlist"
+                                                       data-typeid="58"
+                                                       data-owner-link="https://music.krea8iv.com/demo/adminuser"
+                                                       data-wave="uploads/waves/wave/535be1df02f3d4b66c2f2330dce2715b.png"
+                                                       data-wave-colored="uploads/waves/wave/a28d94fab581fddfddb91dcb35e5a116.png"
+                                                       class=" play-button track-play-button-304" id="track-play-button-304" >
+
+                                                        <div class="art" style="background-image: url(https://music.krea8iv.com/demo/uploads/tracks/1/art/2018/_200_19168dc85f234831c0938f4035de365b.jpg);">
+
+                                                        </div>
+                                                        <div class="content">
+
+                                                            <h6 class="title">
+                                    <span class="title-info">
+
+                                        <b>                                            John doe - Track 1</b>
+                                    </span>
+                                                            </h6>
+
+                                                        </div>
+                                                    </a>
+                                                    <div class="play-control" data-wave="">
+                                                        <div class="play-controls">
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="clearfix mb-3">
+                                                <div class="float-left">
+                                                    <div class="actions-container dropdown">
+                                                        <button  data-toggle="tooltip" title="Like" class="btn like-button-playlist-58 ajax-action " href="https://music.krea8iv.com/demo/like/item?type=playlist&type_id=58"><i class="la la-heart"></i></button>
+                                                        <a
+                                                                data-toggle="tooltip" title="Repost"
+                                                                href="https://music.krea8iv.com/demo/repost/item?action=repost-playlist&track=306&playlist_id=58"
+                                                                class="btn ajax-action repost-button-playlist-58 ">
+                                                            <i class="la la-retweet "></i>
+                                                        </a>
+                                                        <button                                 onclick="return share(58, 'playlist')"
+                                                                                                data-toggle="tooltip" title="Share" class="btn "><i class="la la-external-link"></i></button>
+
+
+                                                    </div>
+                                                </div>
+                                                <div class="float-right hide-mobile-sm">
+                                                    <ul class="track-stats">
+                                                        <li ><a href="https://music.krea8iv.com/demo/track/306-phyano-symphony/likes" data-ajax="true" class="like-count-playlist-58" style=""><i class="la la-heart-o"></i> <span>8</span></a></li>
+
+                                                        <li ><a class="repost-count-track-58"  href="https://music.krea8iv.com/demo/track/306-phyano-symphony/reposters" data-ajax="true" style="display:none">
+                                                                <i class="la la-retweet"></i>
+                                                                <span>0</span>
+                                                            </a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h6 class="mt-3">Recent</h6>
+                                <hr/>
+                                <div class="track-list" data-type-id="1" data-type="my-stream" data-offset="0">
+                                    <div class="feed-placeholder ">
+                                        <div class="feed_loading_post">
+                                            <div class="feed_loading_post_child2">
+
+                                            </div>
+                                        </div>
+                                        <div class="feed_loading_post">
+                                            <div class="feed_loading_post_child2">
+
+                                            </div>
+                                        </div>
+                                    </div></div>           </div>
+                            <div class="col-md-4">
+                                <div class="fixed-left-content">
+                                    <div class="row profile-statistics">
+                                        <div class="col-sm-4">
+                                            Followers                            <a href="https://music.krea8iv.com/demo/adminuser/followers" data-ajax="true"><span class="count followers-count-1">604</span></a>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            Following                            <a href="https://music.krea8iv.com/demo/adminuser/following" data-ajax="true">
+                                                <span class="count">5</span>
+                                            </a>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            Tracks                            <a href="https://music.krea8iv.com/demo/adminuser/tracks" data-ajax="true">
+                                                <span class="count">16</span>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-info">
+                                        <span class="title">Location : </span> albania,                                                    </div>
+
+
+
+
+
+
+                                    <div class="inline-card-list">
+                                        <div class="clearfix title">
+                                            <div class="float-left">
+                                                <div class="">
+                                                    <i class="la la-users"></i>
+                                                    Followers                                    </div>
+                                            </div>
+                                            <div class="float-right">
+                                                <a href="https://music.krea8iv.com/demo/adminuser/followers" data-ajax="true" class=""><span>604</span>  <i class="la-angle-right la"></i></a>
+                                            </div>
+                                        </div>
+
+
+                                        <ul class="clearfix">
+                                            <li><a href="https://music.krea8iv.com/demo/maelo" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/uploads/avatar/1084/_75_b3d9ccf9eb185376cb4347b3bcc0f2e3.jpg)"> </a></li>
+                                            <li><a href="https://music.krea8iv.com/demo/zukak000" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a></li>
+                                            <li><a href="https://music.krea8iv.com/demo/testersdsdffsda" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a></li>
+                                            <li><a href="https://music.krea8iv.com/demo/deinemuttiiiiii" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a></li>
+                                            <li><a href="https://music.krea8iv.com/demo/dodo" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a></li>
+                                            <li><a href="https://music.krea8iv.com/demo/msa0038" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a></li>
+                                            <li><a href="https://music.krea8iv.com/demo/djhoath" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a></li>
+                                            <li><a href="https://music.krea8iv.com/demo/booot" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a></li>
+                                            <li><a href="https://music.krea8iv.com/demo/zaygun" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a></li>
+                                            <li><a href="https://music.krea8iv.com/demo/shayanick" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a></li>
+                                        </ul>
+
+                                    </div>
+
+
+                                    <div class="inline-card-list">
+                                        <div class="clearfix title">
+                                            <div class="float-left">
+                                                <div class="">
+                                                    <i class="la la-users"></i>
+                                                    Following                                    </div>
+                                            </div>
+                                            <div class="float-right">
+                                                <a href="https://music.krea8iv.com/demo/adminuser/following" data-ajax="true" class=""><span>5</span>  <i class="la-angle-right la"></i></a>
+                                            </div>
+                                        </div>
+
+
+                                        <ul class="clearfix">
+                                            <li><a href="https://music.krea8iv.com/demo/lotfizadeh" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/uploads/avatar/449/_75_82599f16c247c2bee5bea170a22338c9.jpg)"> </a></li>
+                                            <li><a href="https://music.krea8iv.com/demo/Sandy088" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/uploads/avatar/550/_75_bd74fbdf324e118845ec52abef8bd4b3.jpg)"> </a></li>
+                                            <li><a href="https://music.krea8iv.com/demo/seva01020304" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a></li>
+                                            <li><a href="https://music.krea8iv.com/demo/muelamusic" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/assets/images/avatar.png)"> </a></li>
+                                            <li><a href="https://music.krea8iv.com/demo/stephan" data-ajax="true" style="background-image: url(https://music.krea8iv.com/demo/uploads/avatar/33/_75_e283e141bad871db2bef6a136d1ab888.jpg)"> </a></li>
+                                        </ul>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>    </div>
+
+        </div>
+    </div>
+    </div>
+    <div class="full-loader"></div>
+    <div id="music-player" class="jp-jplayer"></div>
+    <div id="sound-playlists">
+        <div class="playlist-header clearfix">
+            <div class="float-left">
+                <div class="title">Next up</div>
+            </div>
+            <div class="float-right">
+                <a href="" onclick="return toogleSoundPlaylist()"><i class="la la-times"></i></a>
+            </div>
+        </div>
+        <div class="sound-playlist-content">
+            <div class="content"></div>
+        </div>
+    </div>
+    <div class="gdpr-container" data-animation="slideInLeft" data-animation-delay="400">
+        <div>This site uses cookies to deliver our services and to show you relevant ads and job listings.
+            By using our site, you acknowledge that you have read and understand our Cookie Policy,
+            Privacy Policy, and our Terms of Service. Your use of our Products and Services,
+            including our Network, is subject to these policies and terms.</div>
+        <div class="buttons mt-2">
+            <a href="" onclick="return acceptCookie()" class="btn btn-primary">Got it</a>
+        </div>
+    </div>
+    <div id="" class="jp-audio  sound-container sound-player">
+        <div class="inner-container clearfix">
+            <div class="float-left">
+                <div class="middle-content">
+                    <ul class="nav">
+                        <li><a href="" onclick="return toogleSoundPlaylist()"><i class="la la-indent "></i></a></li>
+
+                        <li><a href="" onclick="return playprev()"><i class="la la-fast-backward "></i></a></li>
+                        <li>
+                            <div class="play-icon music-play jp-play"><i class="fa fa-play "></i></div>
+                            <div class="play-icon music-pause jp-pause"><i class="la la-pause "></i></div>
+                        </li>
+                        <li><a href="" onclick="return playNext()"><i class="la la-fast-forward "></i></a></li>
+                        <li><a href="" onclick="return repeatSongTrigger(this)" class="repeat-song-trigger"><i class="la la-repeat "></i></a></li>
+                    </ul>
+                </div>
+
+                <ul class="nav right-play-controls">
+                    <li class="hide-mobile-sm">
+                        <div class="jp-time-holder">
+                            <div class="jp-current-time hide"></div>
+                            <div class="jp-progress">
+                                <div class="jp-seek-bar">
+                                    <div class="jp-play-bar"></div>
+                                </div>
+                            </div>
+                            <div class="jp-duration hide"></div>
+                        </div>
+                    </li>
+
+
+                </ul>
+            </div>
+
+            <div class="float-right">
+                <div class="media detail">
+                    <div class="mr-3 img" ></div>
+                    <div class="media-body">
+                        <h6 class="title"><a data-ajax="true" id="title-link" href=""></a></h6>
+                    </div>
+                </div>
+
+                <ul class="nav right-play-controls hide-mobile-sm">
+                    <li>
+                        <a href="" class="volume-btn mute jp-mute"><i class="la  la-volume-up"></i></a>
+                        <a href="" class="volume-btn unmute jp-unmute"><i class="la  la-volume-off"></i></a>
+                    </li>
+                    <li>
+                        <div class="progress jp-volume-bar" style="height: 4px;width:100px">
+                            <div class="progress-bar jp-volume-bar-value" role="progressbar"  aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="seek-template" style="display: none;">
+        <div id="" class="jp-audio sound-player">
+            <div class="play-icon jp-play"><i class="fa fa-play "></i></div>
+            <div class="play-icon jp-pause"><i class="la la-pause "></i></div>
+            <div class="jp-progress">
+                <div class="jp-seek-bar">
+                    <div class="jp-play-bar"></div>
+                </div>
+                <div class="jp-time-holder">
+                    <div class="jp-current-time"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade smallModal" id="authModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <ul class="nav">
+                        <li class="active auth-login-title"><a onclick="return changeAuthModal('.login-form')" href="">Log in</a></li>
+                        <li class="auth-signup-title"><a onclick="return changeAuthModal('.signup-form')" href="">Sign up</a></li>
+                    </ul>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="login-form">
+                        <form action="https://music.krea8iv.com/demo/login" class="general-form" method="post">
+
+
+
+                            <div class="form-group">
+                                <input name="val[username]" class="form-control " placeholder="Username or email address"/>
+                            </div>
+
+                            <div class="form-group">
+                                <input type="password" name="val[password]" class="form-control" placeholder="Password"/>
+                            </div>
+
+                            <button type="submit" data-style="zoom-in" data-size="s" class="btn btn-block btn-primary ladda-button" id="login-submit">Log in</button>
+                        </form>
+
+                        <p class="text-center mt-4">
+                            New to <strong class="colored">MusicEngine</strong> <a style="font-weight: 600;" onclick="return changeAuthModal('.signup-form')" href="">Signup here</a>
+                            <br/><br/>
+                            Forgot your password? <a onclick="return changeAuthModal('.forgot-form')" href=""  style="font-weight: 600;">Reset here</a>
+                        </p>
+                    </div>
+
+                    <div class="forgot-form">
+                        <form action="https://music.krea8iv.com/demo/forgot" class="general-form" method="post">
+
+
+                            <div class="form-group">
+                                <input name="email" class="form-control " placeholder="Username or email address"/>
+                            </div>
+
+                            <button type="submit" data-style="zoom-in" data-size="s" class="btn btn-block btn-primary ladda-button" id="forgot-submit">Reset Password</button>
+                        </form>
+
+                    </div>
+
+                    <div class="signup-form" style="display: none;">
+                        <form action="https://music.krea8iv.com/demo/signup" class="general-form" method="post">
+
+
+                            <div class="form-group">
+                                <input type="text" name="val[full_name]" class="form-control " placeholder="Full Name"/>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="val[username]" class="form-control " placeholder="Username"/>
+                            </div>
+
+                            <div class="form-group">
+                                <input type="email" name="val[email]" class="form-control " placeholder="Email address"/>
+                            </div>
+
+                            <div class="form-group">
+                                <input name="val[password]" type="password" class="form-control" placeholder="Password"/>
+                            </div>
+
+
+                            <button type="submit" data-size="s" data-style="zoom-in" class="btn btn-block btn-primary ladda-button" id="signup-submit">Submit</button>
+                        </form>
+
+                        <p class="text-center mt-4">
+                            Already a member  <a onclick="return changeAuthModal('.login-form')" style="font-weight: 600;" href="">Login here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade smallModal" id="playlistModal" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <ul class="nav">
+                        <li class="active playlist-title"><a onclick="return changePlaylistModal('.playlists')" href="">Playlist</a></li>
+                        <li class="add-playlist-title"><a onclick="return changePlaylistModal('.add-playlist')" href="">Add Playlist</a></li>
+                    </ul>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="playlists">
+
+                    </div>
+
+                    <div class="add-playlist" style="display: none;">
+                        <form action="https://music.krea8iv.com/demo/playlist/add" class="general-form" method="post">
+                            <input type="hidden" name="val[id]" id="add-playlist-id"/>
+                            <div class="form-group">
+                                <input type="text" name="val[title]" class="form-control " placeholder="Title"/>
+                            </div>
+                            <div class="form-group">
+                                <textarea name="val[desc]" class="form-control" placeholder="Description"></textarea>
+                            </div>
+
+                            <div class="row">
+
+                                <div class="col">
+                                    <label>Public</label>
+
+                                    <input type="hidden" name="val[public]" value="0"/>
+                                    <div class="switch">
+                                        <input id="cmn-toggle-premium" value="1" name="val[public]" checked class="cmn-toggle cmn-toggle-round-flat" type="checkbox">
+                                        <label for="cmn-toggle-premium"></label>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <button type="submit" data-size="s" data-style="zoom-in" class="mt-4 btn  btn-primary ladda-button" id="playlist-submit">Save</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="reportTrack" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <form action="https://music.krea8iv.com/demo/report/track" method="post" class="general-form">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Report track</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="val[id]" value="" id="report-track"/>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea rows="5" name="val[description]" class="form-control"></textarea>
+                            <div class="text-muted mt-3">Please identify, in as much detail as possible, the copyright work(s) that you believe are being infringed</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="custom-control custom-checkbox">
+                                <input type="checkbox" name="val[good]" value="1" class="custom-control-input">
+                                <span class="custom-control-indicator"></span>
+                                <span class="custom-control-description">I have a good faith belief that use of the copyrighted work described above is not authorized by the copyright owner, its agent or the law</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="custom-control custom-checkbox">
+                                <input type="checkbox" name="val[info]" value="1" class="custom-control-input">
+                                <span class="custom-control-indicator"></span>
+                                <span class="custom-control-description">I confirm that the information in this notification is accurate</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="custom-control custom-checkbox">
+                                <input type="checkbox" name="val[us]" value="1" class="custom-control-input">
+                                <span class="custom-control-indicator"></span>
+                                <span class="custom-control-description">I confirm that I am the copyright owner or am authorised to act on behalf of the owner of an exclusive right that is allegedly infringed. Where I am making notice pursuant to the United States Digital Millennium Copyright Act U.S.C. 17 §512(c), I make this statement under penalty of perjury</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" type="submit" id="reportbutton" data-size="s" data-style="zoom-in" class="ladda-button btn btn-primary">Send Report</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="editPlaylistModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <form action="https://music.krea8iv.com/demo/load/playlist/form" method="post" class="general-form">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Playlist</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" type="submit" id="playlistsavebutton" data-size="s" data-style="zoom-in" class="ladda-button btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="paymentMethodModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="loader">Please wait....</div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Payment Method</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="shareModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog " role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="messageModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog " role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Message</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="https://music.krea8iv.com/demo/message/form" class="general-form" method="post">
+                    <input type="hidden" name="val[modal]" value="#messageModal"/>
+                    <div class="modal-body">
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="popover-default" class="hide" >loading....</div>
+    <script>
+        var baseUrl = 'https://music.krea8iv.com/demo/';
+        var permaLink = 1;
+        var isLoggedIn = false;
+        var strings = {
+            are_your_sure: "Are you sure",
+            ok : "Ok",
+            close : "Close",
+            notImageError : "Only allowed image formats are  : jpg,png,gif,jpeg",
+            allowImageSizeError : "Too large file selected, Allowed image size is  : 50MB",
+            notAudioError : "Only allowed audio files format are  : mp3,m4a,mp4",
+            allowAudioSizeError : "Too large file selected, allowed audio file size is  : 5MB",
+            notVideoError : "Please select a supported video file",
+            allowVideoSizeError : "Too large file selected, Allowed video size is  : 55MB",
+            processing : "Processing..",
+            trans_any_moment : "any_moment",
+            trans_less_than_minute : "few secs ago",
+            trans_about_minute : "1min ago",
+            trans_about_minutes :"%dmin ago",
+            trans_about_hour : "1h ago",
+            trans_about_hours : "%d h ago",
+            trans_a_day : "1d ago",
+            trans_about_days : "%dd ago",
+            trans_about_month :"1m ago",
+            trans_about_months : "%dm ago",
+            trans_about_year : "1y ago",
+            trans_about_years : "%dy ago",
+            you_have_new : "You have new ",
+            "notifications": "Notifications",
+            add_price : "Set price",
+            custom_url : "Custom URL",
+            alphanum_only : "Alpha-Numberic Only"
+        };
+        var supportImagesType = "jpg,png,gif,jpeg";
+        var supportAudioType = "mp3,m4a,mp4";
+        var supportVideoType = "mp4";
+        var allowPhotoSize = 51200000;
+        var allowAudioSize = 5120000;
+        var allowVideoSize = 56320000;
+        var defaultVolume = 80;
+        var updateTime = 10000;
+        var lastTime = 1544623611;
+        var siteTitle = "MusicEngine";
+        var stripeKey = "pk_test_2F0PpIEqlIaD4ms2Y2hqri2r";
+        var siteLogo = "https://music.krea8iv.com/demo/uploads/settings/552635607da2111fa6b63691c955a565.png";
+        var settingswaveColor = "#0F0710";
+        var settingswaveColored = "#FF5533";
+        var playloop = true;
+        var currency = "USD";
+    </script>
+    <script src="{{ asset('/assets/js/plugin.js') }}"></script>
+    <script src="{{ asset('/assets/js/main.js') }}"></script>
+    {#<script src="https://checkout.stripe.com/checkout.js"></script>#}
+    <script>
+    </script>
+    </body>
+{% endblock %}

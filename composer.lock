@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e0e81b61ab65814f37be38a061351ac0",
+    "content-hash": "64c71b1c4e51e6c00e71e9e24b916df7",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -1338,6 +1338,67 @@
                 "sql"
             ],
             "time": "2014-01-12T16:20:24+00:00"
+        },
+        {
+            "name": "kevinpapst/adminlte-bundle",
+            "version": "2.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kevinpapst/AdminLTEBundle.git",
+                "reference": "b8dce027266058729045836b720ccbe5fee2fe71"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kevinpapst/AdminLTEBundle/zipball/b8dce027266058729045836b720ccbe5fee2fe71",
+                "reference": "b8dce027266058729045836b720ccbe5fee2fe71",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3",
+                "symfony/config": ">3.4",
+                "symfony/dependency-injection": ">3.4",
+                "symfony/event-dispatcher": ">3.4",
+                "symfony/http-foundation": ">3.4",
+                "symfony/http-kernel": ">3.4",
+                "symfony/options-resolver": ">3.4",
+                "symfony/security-core": ">3.4",
+                "twig/twig": ">2.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.10",
+                "phpspec/prophecy": "^1.6",
+                "phpunit/phpunit": "^7.3"
+            },
+            "suggest": {
+                "friendsofsymfony/user-bundle": "Allows easy user management and security support",
+                "knplabs/knp-menu-bundle": "Allows easy menu integration"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "KevinPapst\\AdminLTEBundle\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marc Bach",
+                    "homepage": "http://www.avanzu.de"
+                },
+                {
+                    "name": "Ángel Guzmán Maeso",
+                    "homepage": "https://shakaran.net/blog"
+                },
+                {
+                    "name": "Kevin Papst",
+                    "homepage": "https://www.kevinpapst.de"
+                }
+            ],
+            "description": "Admin theme bundle for Symfony 4 based on AdminLTE 2.4.8 with FOSUserBundle support",
+            "time": "2018-11-14T22:28:16+00:00"
         },
         {
             "name": "monolog/monolog",
